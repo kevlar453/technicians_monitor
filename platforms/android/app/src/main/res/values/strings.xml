@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ACServiceMonitor</string>
+    <string name="launcher_name">@string/app_name</string>
+    <string name="activity_name">@string/launcher_name</string>
+    <string name="plugin_bgloc_account_name">@string/app_name</string>
+    <string name="plugin_bgloc_account_type">top.arsetontong.acguy.account</string>
+    <string name="plugin_bgloc_content_authority">top.arsetontong.acguy</string>
+</resources>

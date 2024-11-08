@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src * self blob: data: gap:; style-src * self 'unsafe-inline' blob: data: gap:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: gap:; object-src * 'self' blob: data: gap:; img-src * self 'unsafe-inline' blob: data: gap:; connect-src self * 'unsafe-inline' blob: data: gap:; frame-src * self blob: data: gap:;">
+
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport" content="initial-scale=1, width=device-width">
+  <title>AC Guy Reporter</title>
+  <link href="css/bulma.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/index.css" rel="stylesheet">
+  <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href="css/sweetalert.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/animate.css">
+  <link href="css/pace-theme.css" rel="stylesheet" />
+  <script type="text/javascript" src="cordova.js"></script>
+</head>
+
+<body id="page-top">
+  <div class="device">
+    <div class="container-menu">
+      <div class="block">
+        <div class="image is-96x96" style="margin:20px;">
+          <img src="img/logo.png" alt="" id="logodepan">
+        </div>
+        <input type="hidden" class="is-static" id="chup" />
+        <h1 class="title has-text-centered">
+          <span id="salam_jam"></span></h1>
+        <h3 class="subtitle has-text-centered has-text-dark is-4 subheading1">
+          <span class="icon has-text-primary is-small"><i class="fas fa-spin fa-cog"></i></span>
+        </h3>
+      </div>
+      <div class="block">
+        <div class="photoblock"></div>
+      </div>
+      <div class="block">
+        <div class="notifblock"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/jquery-3.6.0.min.js"></script>
+  <script src="js/jquery-ui.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/agency.js"></script>
+  <script src="js/jquery.easing.min.js"></script>
+  <script src="js/sweetalert.min.js"></script>
+  <script src="js/pace.js"></script>
+  <script src="js/signature_pad.umd.min.js"></script>
+  <script defer src="js/all.js"></script>
+
+  <script type="text/javascript">
+    var db;
+    var notifs = '';
+    var inpLevel;
+    var varcekpgn;
+    var inpIden;
+    var inputKeys;
+    var glat = 0;
+    var glng = 0;
+    var today;
+    var canvas;
+    var signURI;
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    // Device ready event
+    document.addEventListener("backbutton", onBackClickEvent, false);
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    // Ensure all permissions are granted before calling this function
+    function getCurrentLocation() {
+        navigator.geolocation.getCurrentPosition(onGetCurrentPositionSuccess, onGetCurrentPositionError, {
+            enableHighAccuracy: true,
+            timeout: 10000, // 10 seconds timeout
+            maximumAge: 30000 // Cache for 30 seconds
+        });
+    }
+
+
+    function onDeviceReady() {
+      cordova.plugins.sntp.setServer("160.30.225.225", 10000);
+      var gettoday = new Date();
+      today = gantgl(gettoday);
+      let timez = new Date();
+      var tcolor = '#'+today.substr(-8).replace(/:/g,'').replace(/0/g,'e');
+
+      document.documentElement.style.setProperty('--main-bg-color', tcolor);
+      console.log("Cordova is ready in: "+gantgl(timez));
+      var permissions = cordova.plugins.permissions;
+
+      // List of permissions to request, with explanations
+      var permissionsList = [
+          { permission: permissions.CAMERA, explanation: "The camera is required to scan QR codes." },
+          { permission: permissions.ACCESS_FINE_LOCATION, explanation: "Location is required to track your position accurately." },
+          { permission: permissions.ACCESS_BACKGROUND_LOCATION, explanation: "Background location is required for continuous tracking." }
+      ];
+
+      requestPermissionsWithExplanation(permissionsList);
+
+    }
+
+    function requestPermissionsWithExplanation(permissionsList, index = 0) {
+        var permissions = cordova.plugins.permissions;
+
+        if (index >= permissionsList.length) {
+            console.log("All permissions have been granted.");
+            if (typeof window.sqlitePlugin !== "undefined") {
+              db = window.sqlitePlugin.openDatabase({ name: "acguy.db", location: "default" });
+              initDatabase();
+
+            } else {
+              console.error("SQLite plugin not available");
+            }
+            return;
+        }
+
+        var currentPermission = permissionsList[index].permission;
+        var explanation = permissionsList[index].explanation;
+
+        permissions.checkPermission(currentPermission, function(status) {
+            if (!status.hasPermission) {
+                navigator.notification.alert(
+                    explanation,
+                    function() {
+                        permissions.requestPermission(currentPermission, function(success) {
+                            console.log(currentPermission + " permission granted.");
+                            requestPermissionsWithExplanation(permissionsList, index + 1);
+                        }, function(error) {
+                            console.warn(currentPermission + " permission denied. Re-requesting...");
+                            requestPermissionsWithExplanation(permissionsList, index);
+                        });
+                    },
+                    "Permission Required",
+                    "OK"
+                );
+            } else {
+                console.log(currentPermission + " permission already granted.");
+                requestPermissionsWithExplanation(permissionsList, index + 1);
+            }
+        }, function(error) {
+            console.error("Error checking " + currentPermission + ": ", error);
+            requestPermissionsWithExplanation(permissionsList, index + 1);
+        });
+    }
+
+    function initDatabase() {
+      db.transaction(function (tx) {
+
+        tx.executeSql('DROP TABLE IF EXISTS sjrepa');
+        tx.executeSql('DROP TABLE IF EXISTS sjkonversi');
+        tx.executeSql('DROP TABLE IF EXISTS sjnota');
+
+        tx.executeSql("CREATE TABLE IF NOT EXISTS sjpgn (pgurut INTEGER PRIMARY KEY AUTOINCREMENT, pgident TEXT, pglevel INTEGER, pguuid TEXT, pgnama TEXT, pgkota TEXT, pgprop TEXT, pginet TEXT DEFAULT '1', pgtata TEXT)", [], function (tx, result) {
+          console.log('Table sjpgn created');
+        }, onSQLError);
+
+        tx.executeSql('CREATE TABLE IF NOT EXISTS sjstat (sturut INTEGER PRIMARY KEY AUTOINCREMENT, stdaft INTEGER, stnota INTEGER)', [], function (tx, result) {
+          console.log('Table sjstat created');
+        }, onSQLError);
+
+        tx.executeSql('CREATE TABLE IF NOT EXISTS sjsupp (spurut INTEGER PRIMARY KEY AUTOINCREMENT, spkode TEXT, spnama TEXT, sparea TEXT, sppic TEXT, spserial TEXT, spmodel TEXT, spnumlabel TEXT, spperiode TEXT, splogo TEXT, splat TEXT, splon TEXT)', [], function (tx, result) {
+          console.log('Table sjsupp created');
+        }, onSQLError);
+
+        tx.executeSql('CREATE TABLE IF NOT EXISTS sjdsupp (sdurut INTEGER PRIMARY KEY AUTOINCREMENT, sdkode TEXT, sdhrma REAL, sdhrmb REAL, sdhrmc REAL, sdhrmd REAL, sdhrca REAL, sdhrcb REAL, sdhrcc REAL, sdhrcd REAL)', [], function (tx, result) {
+          console.log('Table sjdsupp created');
+        }, onSQLError);
+
+        tx.executeSql('CREATE TABLE IF NOT EXISTS sjitem (iturut INTEGER PRIMARY KEY AUTOINCREMENT, itgol TEXT, itketer TEXT)', [], function (tx, result) {
+          console.log('Table sjitem created');
+        }, onSQLError);
+
+        tx.executeSql('CREATE TABLE IF NOT EXISTS sjdaft (dfurut INTEGER PRIMARY KEY AUTOINCREMENT, dfksupp TEXT, dfnsupp TEXT, dfkode TEXT, dfnota INTEGER NOT NULL DEFAULT 0, dffoto TEXT, dfstatus TEXT NOT NULL DEFAULT "BTL", dftanggal TEXT, dftglnota TEXT, dfjob INTEGER DEFAULT 0, dfjobstat INTEGER DEFAULT 0, dfketerangan TEXT, dftandatangan TEXT)', [], function (tx, result) {
+          console.log('Table sjdaft created');
+        }, onSQLError);
+
+        tx.executeSql('CREATE TABLE IF NOT EXISTS moblist (mlurut INTEGER PRIMARY KEY AUTOINCREMENT, mlksupp TEXT, mlnsupp TEXT, mlkode TEXT, mlnota INTEGER NOT NULL DEFAULT 0, mlfoto TEXT, mltanggal TEXT, mltglnota TEXT, mljob TEXT, mlsum TEXT, mlnote TEXT)', [], function (tx, result) {
+          console.log('Table moblist created');
+        }, onSQLError);
+
+        tx.executeSql('CREATE TABLE IF NOT EXISTS sjnota (nturut INTEGER PRIMARY KEY AUTOINCREMENT, ntkode TEXT, ntsupplier TEXT, ntperiode TEXT, ntlabel REAL, ntmodel TEXT, ntserial TEXT, ntpic TEXT, nttandatangan TEXT, ntstatus TEXT)', [], function (tx, result) {
+          console.log('New table sjnota created');
+        }, onSQLError);
+
+        tx.executeSql("CREATE TABLE IF NOT EXISTS panitera (pnurut INTEGER PRIMARY KEY AUTOINCREMENT, pnjenis TEXT, pnketer TEXT, pnnilai TEXT)", [], function (tx, result) {
+          console.log('Table panitera created');
+        }, onSQLError);
+
+        tx.executeSql("CREATE TABLE IF NOT EXISTS sjkonversi (courut INTEGER PRIMARY KEY AUTOINCREMENT, coawal TEXT, coganti TEXT, coparm1 TEXT, coparm2 TEXT, coparm3 TEXT, coparm4 TEXT, coparm5 TEXT, coparm6 TEXT, coparm7 TEXT, comark1 INTEGER DEFAULT 0)", [], function (tx, result) {
+          console.log('Table sjkonversi created');
+        }, onSQLError);
+
+        tx.executeSql("CREATE TABLE IF NOT EXISTS sjabsensi (aburut INTEGER PRIMARY KEY AUTOINCREMENT, abtanggal TEXT, abjam TEXT, abphoto TEXT, ablong TEXT, ablat TEXT)", [], function (tx, result) {
+          console.log('Table sjabsensi created');
+        }, onSQLError);
+
+        tx.executeSql("CREATE TABLE IF NOT EXISTS sf001 (sf01urut INTEGER PRIMARY KEY AUTOINCREMENT, sf01idnota TEXT, sf01v01 TEXT, sf01v02 TEXT, sf01v03 TEXT, sf01v04 TEXT)", [], function (tx, result) {
+          console.log('Table sf001 created');
+        }, onSQLError);
+
+        tx.executeSql("CREATE TABLE IF NOT EXISTS sf002 (sf02urut INTEGER PRIMARY KEY AUTOINCREMENT, sf02idnota TEXT, sf02v01 TEXT, sf02v02 TEXT, sf02v03 TEXT, sf02v04 TEXT, sf02v05 TEXT, sf02v06 TEXT)", [], function (tx, result) {
+          console.log('Table sf002 created');
+        }, onSQLError);
+
+        tx.executeSql("CREATE TABLE IF NOT EXISTS sf003 (sf03urut INTEGER PRIMARY KEY AUTOINCREMENT, sf03idnota TEXT, sf03v01 TEXT, sf03v02 TEXT, sf03v03 TEXT, sf03v04 TEXT, sf03v05 TEXT, sf03v06 TEXT)", [], function (tx, result) {
+          console.log('Table sf003 created');
+        }, onSQLError);
+
+        tx.executeSql("CREATE TABLE IF NOT EXISTS sf004 (sf04urut INTEGER PRIMARY KEY AUTOINCREMENT, sf04idnota TEXT, sf04v01 TEXT)", [], function (tx, result) {
+          console.log('Table sf004 created');
+        }, onSQLError);
+
+        tx.executeSql("CREATE TABLE IF NOT EXISTS sf005 (sf05urut INTEGER PRIMARY KEY AUTOINCREMENT, sf05idnota TEXT, sf05v01 TEXT, sf05v02 TEXT, sf05v03 TEXT)", [], function (tx, result) {
+          console.log('Table sf005 created');
+        }, onSQLError);
+
+        tx.executeSql("CREATE TABLE IF NOT EXISTS sf006 (sf06urut INTEGER PRIMARY KEY AUTOINCREMENT, sf06idnota TEXT, sf06v01 TEXT, sf06v02 TEXT, sf06v03 TEXT, sf06v04 TEXT)", [], function (tx, result) {
+          console.log('Table sf006 created');
+        }, onSQLError);
+
+        tx.executeSql("CREATE TABLE IF NOT EXISTS sf007 (sf07urut INTEGER PRIMARY KEY AUTOINCREMENT, sf07idnota TEXT, sf07v01 TEXT, sf07v02 TEXT, sf07v03 TEXT, sf07v04 TEXT, sf07v05 TEXT)", [], function (tx, result) {
+          console.log('Table sf007 created');
+        }, onSQLError);
+
+        tx.executeSql("CREATE TABLE IF NOT EXISTS sf008 (sf08urut INTEGER PRIMARY KEY AUTOINCREMENT, sf08idnota TEXT, sf08v01 TEXT, sf08v02 TEXT, sf08v03 TEXT)", [], function (tx, result) {
+          console.log('Table sf008 created');
+        }, onSQLError);
+
+        tx.executeSql("CREATE TABLE IF NOT EXISTS sf009 (sf09urut INTEGER PRIMARY KEY AUTOINCREMENT, sf09idnota TEXT, sf09v01 TEXT, sf09v02 TEXT)", [], function (tx, result) {
+          console.log('Table sf009 created');
+        }, onSQLError);
+
+        // ===== re-structure table ===== start
+        var query = "PRAGMA table_info('sjpgn')";
+        tx.executeSql(query, [], function(tx, results) {
+            var columnCount = results.rows.length;
+            console.log('sjpgn columns count: '+columnCount);
+            if (columnCount == 9) {
+              tx.executeSql(query, [], function(tx, results) {
+                  var columns = [];
+                  for (var i = 0; i < results.rows.length; i++) {
+                      columns.push(results.rows.item(i).name);
+                  }
+
+                  if (!columns.includes('pgcomp')) {
+                      tx.executeSql("ALTER TABLE sjpgn ADD COLUMN pgcomp TEXT", [], function (tx, result) {
+                          console.log('Column pgcomp added to sjpgn');
+                      }, onSQLError);
+                  }
+
+              }, function(tx, error) {
+                  console.error("Failed to count columns: " + error.message);
+              });
+            }
+        }, function(tx, error) {
+            console.error("Failed to count columns: " + error.message);
+        });
+
+        // ===== re-structure table ===== end
+
+        tx.executeSql("select * from sjpgn", [], function(tx, results) {
+          console.log('Cek table sjpgn');
+          varcekpgn = results.rows;
+
+          if(varcekpgn.length == 1){
+            inpIden = results.rows.item(0).pgnama;
+            inputKeys = results.rows.item(0).pgident;
+
+            $.ajax({
+              type: "POST",
+              url: 'https://arsetontong.top/suratjalan/go_logo',
+              data: jQuery.param({idn: inputKeys})
+            })
+            .done(function(data) {
+//              console.log('Data Company: '+JSON.stringify(data));
+//              var AmbilData = JSON.parse(data);
+
+                animateCSS('#logodepan', 'rubberBand');
+                var comlogo = data;
+//                alert(data);
+                db.transaction(function(tx) {
+                  tx.executeSql("UPDATE sjpgn SET pgcomp=? WHERE pgident=?", [comlogo, inputKeys], function(tx, results) {
+                  }, onSQLError);
+                }, onSQLError);
+
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+              console.error('LOGO request failed:', textStatus, errorThrown);
+            })
+            .always(function() {
+//              window.plugins.toast.showLongBottom('Update KOP berhasil', function(a){console.log('toast success: ' + a)}, function(b){alert('toast error: ' + b)});
+              animateCSS('#logodepan', 'rubberBand');
+            });
+
+          }
+        }, onSQLError);
+
+
+
+        notifs = '<div class="notification is-success is-light"><button class="delete"></button>Database initialization completed</div>';
+        $('.notifblock').append(notifs);
+        getCurrentLocation();
+
+      }, function(tx,results){
+      }, onSQLError);
+    }
+
+    function animateCSS(element, animationName, callback) {
+      const node = document.querySelector(element)
+      node.classList.add('animated', animationName)
+
+      function handleAnimationEnd() {
+        node.classList.remove('animated', animationName)
+        node.removeEventListener('animationend', handleAnimationEnd)
+
+        if (typeof callback === 'function') callback()
+      }
+      node.addEventListener('animationend', handleAnimationEnd)
+    }
+
+
+    function onSQLError(tx, error) {
+      console.error("SQL Error: " + error.message);
+    }
+
+    var onGetCurrentPositionSuccess = function(position) {
+        glat = position.coords.latitude;
+        glng = position.coords.longitude;
+        console.log("Geolocation checked: " + glat + ',' + glng);
+
+      nativegeocoder.reverseGeocode(geosuccess, geofailure, glat, glng, {
+        useLocale: true,
+        maxResults: 1
+      });
+    }
+
+    var onGetCurrentPositionError = function(error) {
+      console.error("Geolocation error:", error.message);
+      alert("Unable to get your location. Please ensure location services are enabled.");
+
+    }
+
+    function geosuccess(result) {
+      var cekvarsup = 0;
+      if (result[0]) {
+        var gkota = result[0].subAdministrativeArea;
+        var gprop = result[0].administrativeArea;
+        SpinnerDialog.show();
+        notifs = '<div class="notification is-success is-light"><button class="delete"></button>Update posisi user, kota: '+gkota+', prop: '+gprop+'</div>';
+        $('.notifblock').append(notifs);
+            if (varcekpgn.length == 0) {
+              notifs = '<div class="notification is-success is-light"><button class="delete"></button>Pengguna belum terdaftar</div>';
+              $('.notifblock').append(notifs);
+              db.transaction(function(tx) {
+                tx.executeSql("DELETE FROM sjpgn", [],function() {
+                  SpinnerDialog.hide();
+                  swal({
+                      title: "Pengguna Baru!",
+                      text: "Masukkan kunci daftar:",
+                      type: "input",
+                      showCancelButton: false,
+                      closeOnConfirm: false,
+                      animation: "slide-from-top",
+                      inputPlaceholder: "Kunci Pendaftaran",
+                      showLoaderOnConfirm: true
+                    },
+                    function(inputKeys) {
+                      if (inputKeys === false) return false;
+
+                      if (inputKeys === "") {
+                        SpinnerDialog.hide();
+                        swal.showInputError("Masukkan Kunci Daftar!");
+                        return false
+                      }
+                      SpinnerDialog.show();
+                      $.ajax({
+                        url: 'https://arsetontong.top/suratjalan/cekuser',
+                        type: 'POST',
+                        data: jQuery.param({
+                          wpgidentitas: inputKeys
+                        }),
+                        success: function(trmlevel) {
+                          console.log('Resp Svr: '+ JSON.stringify(trmlevel));
+                          if (trmlevel == '' || parseInt(trmlevel) <= 0) {
+                            SpinnerDialog.hide();
+                            swal({
+                              title: "Maaf!!!",
+                              text: "Identitas " + inputKeys + " tidak ditemukan.",
+                              showConfirmButton: true
+                            }, function() {
+                              location.reload();
+                            });
+                          } else {
+                            var AmbilData = JSON.parse(trmlevel);
+                            console.log('USER request completed for ',inputKeys, AmbilData.level, device.uuid, AmbilData.nama, gkota,gprop);
+
+                            db.transaction(function(tx) {
+                              tx.executeSql("INSERT INTO sjpgn(pgident,pglevel,pguuid,pgnama,pgkota,pgprop) VALUES (?,?,?,?,?,?)", [inputKeys, AmbilData.level, device.uuid, AmbilData.nama, gkota,gprop], function() {
+                                // Request permission for local notifications
+                                cordova.plugins.notification.local.requestPermission(function(granted) {
+                                  console.log("Notification permission granted:", granted);
+                                  notifySupplier('AC Service Monitor','Selamat bekerja!');
+                                  window.plugins.toast.showLongBottom('Login sukses!', function(a){console.log('toast success: ' + a)}, function(b){alert('toast error: ' + b)});
+                                  setTimeout(function(){
+                                    location.reload();
+                                  },5000);
+                                });
+                              }, function(tx, error) {
+                                console.log('Failed to create sjpgn: ' + error.message);
+                              });
+                            }, null);
+
+
+                          }
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                          alert(textStatus + jqXHR.responseText);
+                        }
+                      });
+                    });
+                }, onSQLError);
+              },onSQLError);
+
+
+            } else {
+              if(varcekpgn.item(0).pgtata == null || varcekpgn.item(0).pgtata == ''){
+                $('.notifblock').empty();
+                notifs = '<div class="notification is-warning is-light">Belum ada tanda tangan teknisi!</div>';
+                $('.notifblock').append(notifs);
+                SpinnerDialog.hide();
+                takeSign();
+
+              } else {
+                notifs = '<div class="notification is-success is-light"><button class="delete"></button>Pengguna sudah terdaftar</div>';
+                $('.notifblock').append(notifs);
+                notifs = '<div class="notification is-info is-light"><span class="icon has-text-danger is-large"><i class="fas fa-spin fa-cog"></i></span>Menyiapkan data lanjutan...</div>';
+                $('.notifblock').append(notifs);
+                animateCSS('#logodepan', 'fadeIn');
+                $('.subheading1').html('<span class="is-5">' + inpIden + '</span>');
+                animateCSS('.subheading1', 'bounce');
+
+                db.transaction(function(tx) {
+
+                  tx.executeSql("DELETE FROM sjnota WHERE ntstatus = ?", ['BTL'], function(){
+                    tx.executeSql("DELETE FROM sjsupp", [], function(){
+
+                      $.ajax({
+                        type: "POST",
+                        url: 'https://arsetontong.top/suratjalan/go_supplier',
+                        data: jQuery.param({idn: inputKeys, jen: 'daf', kota: gkota.replace(/\s+/g, '') })
+                      ,success:function(data) {
+                        console.log('Data Supp '+data);
+                        if(parseInt(data)  > 0 || JSON.parse(data).length > 0){
+                          cekvarsup = 1;
+                          var AmbilData = JSON.parse(data);
+                          var i = 0;
+                          var jsupp = AmbilData.length,i;
+                          console.log("Ambil data Supplier, total: "+jsupp);
+                          for (i = 0; i <= jsupp - 1; i++) {
+                            animateCSS('#logodepan', 'rubberBand');
+                            lsupid = AmbilData[i].kode_client;
+                            lsupnm = AmbilData[i].nama_client;
+                            lsupar = AmbilData[i].asal_wilayah;
+
+                            qdpic = AmbilData[i].nama_pic;
+                            qdser = AmbilData[i].serial;
+                            qdmod = AmbilData[i].model;
+                            qdlab = AmbilData[i].numlabel;
+                            qdper = AmbilData[i].periode;
+                            qdlog = AmbilData[i].foto;
+                            qdlat = AmbilData[i].latitude;
+                            qdlon = AmbilData[i].longitude;
+                            //                          console.log("Ambil data: "+JSON.stringify(AmbilData));
+                            ceksupplier(lsupid, lsupnm, lsupar, qdpic, qdser, qdmod, qdlab, qdper, qdlog, qdlat, qdlon);
+                          }
+                        } else {
+                          window.plugins.toast.showLongBottom('Hari ini tidak ada klien untuk anda.', function(a){console.log('toast success: ' + a)}, function(b){alert('toast error: ' + b)});
+                        }
+                        if(varcekpgn.length == 1){
+
+                          console.log("Selesai update suplier, ambil data item");
+                          animateCSS('#logodepan', 'rubberBand');
+
+                          notifs = '<div class="notification is-success is-light"><button class="delete"></button>Finalisasi data<br /></div>';
+                          $('.notifblock').append(notifs);
+                          notifs = '<div class="notification is-info is-light"><span class="icon has-text-danger is-large"><i class="fas fa-spin fa-cog"></i></span>Mohon tunggu...</div>';
+                          $('.notifblock').append(notifs);
+
+                          db.transaction(function(tx) {
+                            tx.executeSql("select * from sjabsensi where abtanggal=?", [today.substr(0,10)], function(tx, results) {
+                              var lenab = results.rows.length;
+                              console.log('Nilai lenab: '+lenab);
+                              if(lenab == 1){
+                                window.location.replace('mainpage.html');
+                              } else {
+                                SpinnerDialog.hide()
+                                swal({
+                                  title: "Absensi Harian",
+                                  text: "Hari ini anda belum absen.",
+                                  showConfirmButton: true
+                                }, function() {
+                                  takephoto();
+                                });
+                              }
+
+                            }, function(tx, error) {
+                              console.log('Failed to get absensi date');
+                            });
+                          }, null);
+
+                          $('.subheading1').html('<span class="is-5">' + inpIden + '</span>');
+
+                        }
+                      },
+                      error:function(jqXHR, textStatus, errorThrown) {
+                        SpinnerDialog.hide()
+                        console.error('SUPPLIER request failed:', textStatus, errorThrown);
+                        swal("Error!", "Could not connect to server.", "error");
+                      }
+                    })
+                      .done(function() {
+                        });
+
+                    }, onSQLError);
+                  }, onSQLError);
+                }, onSQLError);
+              }
+
+            }
+
+
+
+        animateCSS('#logodepan', 'rubberBand');
+      } else {
+        db.transaction(function(tx) {
+          tx.executeSql("DELETE FROM sjnota WHERE ntstatus = ?", ['BTL']);
+          $('.subheading1').html('<span class="is-5">' + results.rows.item(0).pgnama + '</span>');
+          animateCSS('.subheading1', 'bounce');
+        }, onSQLError);
+        animateCSS('#logodepan', 'rubberBand');
+      }
+    }
+
+    function geofailure(err) {
+      swal({
+        title: "Error!",
+        text: "Tidak dapat menghubungi server.<br/>Silahkan coba beberapa saat lagi.",
+        html:true,
+        showConfirmButton: true
+      }, function() {
+        navigator.app.exitApp();
+      });
+      setTimeout(function(){
+      })
+    }
+
+    function ceksupplier(lsupid, lsupnm, lsupar, qdpic, qdser, qdmod, qdlab, qdper, qdlog, qdlat, qdlon) {
+      db.transaction(function(tx) {
+        tx.executeSql("select * from sjsupp WHERE spkode =?", [lsupid], function(tx1, results) {
+          var len = results.rows.length;
+          if (len == 0) {
+            tx.executeSql("INSERT INTO sjsupp(spkode,spnama,sparea,sppic,spserial,spmodel,spnumlabel,spperiode,splogo,splat,splon) VALUES (?,?,?,?,?,?,?,?,?,?,?)", [lsupid, lsupnm, lsupar, qdpic, qdser, qdmod, qdlab, qdper, qdlog, qdlat, qdlon], function(tx, result) {
+              animateCSS('.subheading1', 'bounce');
+              $('.notifblock').empty();
+              notifs = '<div class="notification is-success is-light"><button class="delete"></button>Sukses import data klien - '+lsupnm+'</div>';
+              $('.notifblock').append(notifs);
+            }, function(tx, error) {
+              console.log('Failed to create sjstat: ' + error.message);
+            });
+          }
+        }, onSQLError);
+      }, null);
+    }
+
+    function cekitems(litgol, litket) {
+      db.transaction(function(tx) {
+        tx.executeSql("select * from sjitem WHERE itketer =? ", [litket], function(tx1, results) {
+          var len = results.rows.length;
+          if (len == 0) {
+            animateCSS('.subheading1', 'bounce');
+            tx.executeSql("INSERT INTO sjitem(itgol,itketer) VALUES (?,?)", [litgol, litket]);
+            animateCSS('#logodepan', 'pulse');
+          }
+        }, onSQLError);
+      }, onSQLError, function() {});
+    }
+
+
+    function setInet(konek) {
+      var lkonek = 0;
+      if (konek != '') {
+        var isichup = $('#chup').val();
+        lkonek = konek.length;
+        if (konek == 'OFF') {
+          indi = '<h6 class="subtitle is-6"><span class="icon has-text-danger" id="indi"><i class="fas fa-signal-slash"></i></span>';
+        } else if (konek == 'wifi') {
+          indi = '<h6 class="subtitle is-6"><span class="icon has-text-success" id="indi"><i class="fas fa-wifi"></i></span>';
+        } else {
+          if (lkonek == 2) {
+            indi = '<h6 class="subtitle is-6"><span class="icon has-text-info" id="indi"><i class="fas fa-signal"></i></span>';
+          } else {
+            indi = '<h6 class="subtitle is-6"><span class="icon has-text-warning" id="indi"><i class="fas fa-signal-alt-3"></i></span>';
+          }
+        }
+
+        var today = new Date();
+        var curHr = today.getHours();
+        if (curHr < 12) {
+          var salam = '<strong class="has-text-dark">Selamat Pagi! </strong>';
+        } else if (curHr < 15) {
+          var salam = '<strong class="has-text-dark">Selamat Siang! </strong>';
+        } else if (curHr < 19) {
+          var salam = '<strong class="has-text-dark">Selamat Sore! </strong>';
+        } else {
+          var salam = '<strong class="has-text-dark">Selamat Malam! </strong>';
+        }
+        $('#salam_jam').html(indi + '(' + konek + ')</h6>' + salam);
+        if (parseInt(isichup) > 0) {
+          $('#salam_jam').html('<h3 class="title is-3 is-info blink">Harus update data suplayer!</h3>');
+        }
+      }
+    }
+
+
+
+    function klikmenu() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+      $('#burger').removeClass("is-open");
+      $('#main-nav').removeClass("is-open");
+    }
+
+    function cekState() {
+
+      if (typeof navigator.connection !== "undefined") {
+        var networkState = navigator.connection.type;
+        var states = {};
+        states[Connection.ETHERNET] = 'LAN';
+        states[Connection.WIFI] = 'wifi';
+        states[Connection.CELL_2G] = '2G';
+        states[Connection.CELL_3G] = '3G';
+        states[Connection.CELL_4G] = '4G';
+        states[Connection.CELL] = 'gprs';
+        states[Connection.NONE] = 'OFF';
+
+      } else {
+        states[Connection.UNKNOWN] = 'ENTAH';
+        console.log("Connection type not available.");
+      }
+      return states[networkState];
+
+    }
+
+    function onBackClickEvent() {
+      db.transaction(function (tx) {
+        tx.executeSql("SELECT * FROM sjstat", [], function (tx1, result1) {
+          if (result1.rows.length === 0) {
+            navigator.app.exitApp();
+          } else {
+            db.transaction(function (tx) {
+              tx.executeSql("DELETE FROM sjstat", []);
+            }, onSQLError);
+            navigator.app.exitApp();
+          }
+        }, onSQLError);
+      });
+    }
+
+    function loadsalam() {
+      $('.notifblock').empty();
+      db.transaction(function(tx) {
+        var konek = 'OFF';
+        var koneksi = cekState();
+        var indi = '';
+        var cver = '';
+        console.log("Status koneksi: "+koneksi);
+
+        tx.executeSql("SELECT * FROM panitera WHERE pnjenis=? AND pnketer=?", ['sys', 'ver'], function(txq, resultq) {
+            var lenq = resultq.rows.length;
+            console.log("Nilai lenq: "+lenq);
+
+            tx.executeSql("select * from sjpgn", [], function(txx, resultx) {
+              var lenx = resultx.rows.length;
+              if (lenx > 0) {
+                var dbinet = resultx.rows.item(0).pginet;
+                if (dbinet == '0') {
+                  var konek = 'OFF';
+                  ofProses();
+                } else {
+                  var konek = koneksi;
+                  animateCSS('#logodepan', 'fadeIn');
+                  onProses();
+                  $('.subheading1').removeClass('is-6');
+                }
+                setInet(konek);
+                tx.executeSql("select * from sjpgn", [], function(txp, resultp) {
+                  var len1 = resultp.rows.length;
+                  if (len1 > 0) {
+                    var usident = resultp.rows.item(0).pgident;
+                    var uslevel = resultp.rows.item(0).pglevel;
+                    var usuuid = resultp.rows.item(0).pguuid;
+                    var usnama = resultp.rows.item(0).pgnama;
+                    var uskota = resultp.rows.item(0).pgkota;
+                    var usprop = resultp.rows.item(0).pgprop;
+                  }
+                });
+              } else {
+                var konek = koneksi;
+                $('.subheading1').text('Menunggu respon server');
+                $('.subheading1').addClass('is-6');
+              }
+              setInet(konek);
+            }, function() {
+              alert('error cek pginet');
+            });
+
+          },
+          function() {
+            alert('error cek pginet');
+          });
+
+      }, null);
+    }
+
+    function onProses() {
+      db.transaction(function(tx) {
+        tx.executeSql("select * from sjpgn", [], function(tx1, results) {
+          tx.executeSql("DELETE FROM sjnota WHERE ntstatus = ?", ['BTL']);
+          $('.subheading1').html('<span class="is-5">' + results.rows.item(0).pgnama + '</span>');
+          animateCSS('.subheading1', 'bounce');
+        }, onSQLError);
+      }, onSQLError);
+    }
+
+    function takephoto() {
+      $('.notifblock').empty();
+      var isitool = '';
+        var setupsumber = Camera.PictureSourceType.CAMERA;
+
+            if ($('#trgambar').length <= 0) {
+              isitool +=
+                '<th class="has-text-centered" colspan="4"><span class="image"><img src="img/cam2.jpg" class="thumbnail" id="hslfoto" style="width: 100%; height: auto;"></span></th>';
+              $('.photoblock').append('<span class="has-background-light" id="trgambar">' + isitool + '</span>');
+            }
+            navigator.camera.getPicture(
+              function(uri) {
+                var img = document.getElementById('hslfoto');
+                img.style.visibility = "visible";
+                img.style.display = "block";
+                img.src = "data:image/jpeg;base64," + uri;
+                var imageURI = img.src;
+                if (!imageURI || (img.style.display == "none")) {
+                  document.getElementById('lbssup2').innerHTML = "Ambil gambar SJ dulu";
+                  return;
+                }
+                var xgal = imageURI.substr(imageURI.lastIndexOf('/') + 1);
+                if (xgal == "cam2.jpg") {
+                  return;
+                }
+
+                db.transaction(function(tx) {
+                  tx.executeSql("INSERT INTO sjabsensi (abtanggal, abjam, abphoto, ablong, ablat) VALUES (?,?,?,?,?)", [today.substr(0,10),today.substr(-8),uri,glng,glat], function(tx, results) {
+                    animateCSS('#hslfoto', 'fadeIn', function() {
+                      SpinnerDialog.show(null,'Menyiapkan data hari ini. Mohon tunggu...',true);
+                      $.ajax({
+                        url: 'https://arsetontong.top/suratjalan/sm_absen',
+                        type: 'POST',
+                        data: jQuery.param({
+                          abidn: inputKeys,
+                          abtgl: today.substr(0,10),
+                          abjam: today.substr(-8),
+                          abfoto: uri,
+                          ablon: glng,
+                          ablat: glat
+                        }),
+                        success: function(data) {
+                          window.location.replace('mainpage.html');
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                          alert(textStatus + jqXHR.responseText);
+                        }
+                      }).done(function() {
+                        //        $('#pindik').addClass('is-hidden');
+//                        trxGambar(ftpot, dnfot);
+                      });
+                    });
+                  }, onSQLError);
+                });
+              },
+              function(e) {
+                setTimeout(function(){
+                  console.log("Error getting picture: " + e);
+                  notifs = '<div class="notification is-danger is-light"><button class="delete"></button>Gagal absen. Mohon coba beberapa menit lagi.</div>';
+                  $('.notifblock').append(notifs);
+                },5000);
+              }, {
+                quality: 90,
+                destinationType: navigator.camera.DestinationType.DATA_URL,
+                mediaType: navigator.camera.MediaType.PICTURE,
+                sourceType: setupsumber,
+                encodingType: Camera.EncodingType.JPEG,
+                saveToPhotoAlbum: true,
+                allowEdit: false,
+                correctOrientation: true,
+                targetWidth: 720,
+                targetHeight: 1280
+              });
+    }
+
+
+    function ofProses() {
+      db.transaction(function(tx) {
+        tx.executeSql("select * from sjpgn", [], function(tx1, results) {
+          var len1 = results.rows.length;
+          if (len1 == 0) {
+            swal({
+              title: "Pengguna Baru OffLine",
+              text: "Untuk penggunaan perdana anda harus online dulu.",
+              timer: 5000,
+              showConfirmButton: true
+            }, function() {
+              onBackClickEvent()
+            });
+          } else {
+            $('.subheading1').html('<span class="is-5">' + results.rows.item(0).pgnama + '</span>');
+            animateCSS('.subheading1', 'bounce');
+          }
+        }, onSQLError);
+      }, errorCB);
+    }
+
+    function startMonSalam(){
+      loadsalam();
+      setInterval(function () {
+        loadsalam();
+      }, 10000);
+    }
+
+    function takeSign(){
+      var isitool = '';
+      isitool = '<div class="columns"><div class="has-background-white column is-full"><h3 class="is-title is-3">Tanda Tangan:</h3><canvas id="signature" style="border: 1px solid black;"></canvas><img id="preview" /></div><div class="has-background-dark column is-half"><button class="button is-success is-large is-fullwidth" id="export">CONFIRM</button></div><div class="has-background-dark column is-half"><button class="button is-info is-large is-fullwidth" id="reset">CLEAR</button></div></div>';
+      $('.notifblock').append(isitool);
+      canvas = document.getElementById("signature");
+      canvas.width = w;
+      canvas.height = h * 0.25;
+      var signaturePad = new SignaturePad(canvas,{
+        dotSize: 2
+      });
+      document.getElementById("export").addEventListener("click",function(e){
+        signURI = signaturePad.toDataURL();
+        db.transaction(function(tx) {
+          tx.executeSql("UPDATE sjpgn SET pgtata=? WHERE pgident=?", [signURI.split(',')[1], inputKeys], function(tx, results) {
+            window.plugins.toast.showLongBottom('Tanda tangan berhasil', function(a){console.log('toast success: ' + a)}, function(b){alert('toast error: ' + b)});
+            setTimeout(function(){
+              window.location.reload();
+            },1000);
+          }, onSQLError);
+        }, onSQLError);
+      },false);
+
+      document.getElementById("reset").addEventListener("click",function(e){
+        signaturePad.clear();
+        db.transaction(function(tx) {
+          tx.executeSql("UPDATE sjpgn SET pgtata=? WHERE pgident=?", ['', inputKeys], function(tx, results) {
+          }, onSQLError);
+        }, onSQLError);
+      },false);
+    }
+  </script>
+</body>
+
+</html>

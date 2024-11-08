@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src * self blob: data: gap:; style-src * self 'unsafe-inline' blob: data: gap:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: gap:; object-src * 'self' blob: data: gap:; img-src * self 'unsafe-inline' blob: data: gap:; connect-src self * 'unsafe-inline' blob: data: gap:; frame-src * self blob: data: gap:;">
+
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport" content="initial-scale=1, width=device-width">
+  <title>AC Guy Reporter</title>
+  <link href="css/bulma.min.css" rel="stylesheet">
+  <link href="css/index.css" rel="stylesheet">
+  <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href="css/sweetalert.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/animate.css">
+  <script type="text/javascript" src="cordova.js"></script>
+  <style>
+      /* Custom Styles */
+      body {
+          max-width: 8.5in;
+          margin: 0.1in;
+          font-family:Arial;
+          font-size:9.6px;
+      }
+
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 0;
+          margin-bottom: 2px;
+      }
+
+      tr, th, td {
+        padding: 0px;
+          text-align: left;
+      }
+
+      img {
+        display: inline-block;
+        margin:0;
+      }
+      @media print {
+          /* Page break after the first page's content */
+          #acreport {
+              page-break-after: always;
+          }
+
+          /* Hide content after the first page */
+          .hide-on-first-page {
+              display: none;
+          }
+      }
+
+  </style>
+
+</head>
+
+<body>
+
+<center><button id="generate-pdf" class="button is-primary">Download PDF</button></center>
+
+  <div class="table-container" id="acreport">
+    <table cellspacing="0" cellpadding="0" class="table is-narrow">
+      <tr style="text-align:center;" class="is-light">
+        <td style="font-size:12px;border-top: 2px solid #000;border-left: 2px solid #000;width:35%;white-space:nowrap;">
+          <p>
+            <strong>{LOGO-1}</strong>
+          </p>
+        </td>
+        <td colspan="2" style="font-size:14px;border-top: 2px solid #000;width:30%;font-weight:bolder;">
+          <p>
+            <strong>AIR CONDITIONER SYSTEM</strong>
+          </p>
+          <p>
+            <strong>SERVICE REPORT</strong>
+          </p>
+        </td>
+        <td style="font-size:12px;border-top: 2px solid #000;border-right: 2px solid #000;width:35%;white-space:nowrap;">
+          <p>
+            <strong>{LOGO-2}</strong>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4" style="border-left: 2px solid #000;border-right: 2px solid #000;border-bottom:0;">
+
+          <table cellspacing="0" cellpadding="0" class="table is-narrow" style="margin-bottom:1px;">
+            <tr style="border: 1px solid #000;">
+              <td style="border: 1px solid #000;width:10%;">
+                <p>
+                  <strong>Date</strong>
+                </p>
+              </td>
+              <td style="border: 1px solid #000;width:40%;">
+                <p> {head-tanggal} </p>
+              </td>
+              <td style="border: 1px solid #000;width:10%;">
+                <p>
+                  <strong>Label Number</strong>
+                </p>
+              </td>
+              <td style="border: 1px solid #000;width:40%;">
+                <p> {head-label-number} </p>
+              </td>
+            </tr>
+            <tr style="border: 1px solid #000;">
+              <td style="border: 1px solid #000;">
+                <p>
+                  <strong>Customer</strong>
+                </p>
+              </td>
+              <td style="border: 1px solid #000;">
+                <p> {head-customer} </p>
+              </td>
+              <td style="border: 1px solid #000;">
+                <p>
+                  <strong>Model/Version</strong>
+                </p>
+              </td>
+              <td style="border: 1px solid #000;">
+                <p> {head-model} </p>
+              </td>
+            </tr>
+            <tr style="border: 1px solid #000;">
+              <td style="border: 1px solid #000;">
+                <p>
+                  <strong>Periode / Info</strong>
+                </p>
+              </td>
+              <td style="border: 1px solid #000;">
+                <p> {head-periode} </p>
+              </td>
+              <td style="border: 1px solid #000;">
+                <p>
+                  <strong>Serial Number</strong>
+                </p>
+              </td>
+              <td style="border: 1px solid #000;">
+                <p> {head-serial} </p>
+              </td>
+            </tr>
+          </table>
+          <table cellspacing="0" cellpadding="0" class="table is-narrow" style="margin:0;">
+            <tr>
+              <td style="border: 1px solid #000;">
+                <p style="font-weight: bold;"> Job Description </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+              <td style="border: 1px solid #000;">
+                <p style="font-weight: bold;"> Maintenance </p>
+              </td>
+              <td style="border: 1px solid #000;text-align:center;">
+                <p> {j-1} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+              <td style="font-weight: bold;border: 1px solid #000;">
+                <p> Survey </p>
+              </td>
+              <td style="border: 1px solid #000;text-align:center;">
+                <p> {j-2} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+              <td style="font-weight: bold;border: 1px solid #000;">
+                <p> Repair </p>
+              </td>
+              <td style="border: 1px solid #000;text-align:center;">
+                <p> {j-3} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+              <td style="font-weight: bold;border: 1px solid #000;">
+                <p> Test &amp; Commissioning </p>
+              </td>
+              <td style="border: 1px solid #000;text-align:center;">
+                <p> {j-4} </p>
+              </td>
+            </tr>
+          </table>
+          <p></p>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4" style="border-right: 2px solid #000;border-left: 2px solid #000;border-bottom:0;">
+          <table cellspacing="0" cellpadding="0" class="table is-narrow is-bordered" style="border: 1px solid #000;">
+            <tr style="text-align:center;">
+              <td>
+                <p>
+                  <strong>No</strong>
+                </p>
+              </td>
+              <td>
+                <p>
+                  <strong>Item Checked</strong>
+                </p>
+              </td>
+              <td>
+                <p>
+                  <strong>Unit</strong>
+                </p>
+              </td>
+              <td>
+                <p>
+                  <strong>Range</strong>
+                </p>
+              </td>
+              <td colspan="3">
+                <p>
+                  <strong>Actual Checked</strong>
+                </p>
+              </td>
+              <td>
+                <p>
+                  <strong>Remarks</strong>
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td rowspan="5">
+                <p> 1 </p>
+              </td>
+              <td colspan="7" style="font-weight: bold;">
+                <p> Electrical Power Supply </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Voltage line to Neutral Groud </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Volt </p>
+              </td>
+              <td style="text-align:center;">
+                <p> 220 ± 10% </p>
+              </td>
+              <td>
+                <p> L1: {ac01} </p>
+              </td>
+              <td>
+                <p> L2: {ac02} </p>
+              </td>
+              <td>
+                <p> L3: {ac03} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Voltage line to line </p>
+              </td>
+              <td>
+                <p style="text-align:center;"> Volt </p>
+              </td>
+              <td style="text-align:center;">
+                <p> 380 ± 10% </p>
+              </td>
+              <td>
+                <p> L1: {ac04} </p>
+              </td>
+              <td>
+                <p> L2: {ac05} </p>
+              </td>
+              <td>
+                <p> L3: {ac06} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Frequency </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Hz </p>
+              </td>
+              <td style="text-align:center;">
+                <p> 50 ± 10% </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac07} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Cable Connection </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac08} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td rowspan="7">
+                <p> 2 </p>
+              </td>
+              <td colspan="3" style="font-weight: bold;">
+                <p> Blower Section </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Fan 1 </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Fan 2 </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Fan 3 </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Motor Mounting </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac09} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac10} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac11} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Fan belt </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac12} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac13} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac14} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Fan safety Switch </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac15} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac16} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac17} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Bearing </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac18} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac19} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac20} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Pulley </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac21} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac22} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac23} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Current </p>
+              </td>
+              <td colspan="2" style="text-align:center;">
+                <p> Amp </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac24}, {ac25}, {ac26} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac27}, {ac28}, {ac29} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac30}, {ac31}, {ac32} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td rowspan="7">
+                <p> 3 </p>
+              </td>
+              <td colspan="3" style="font-weight: bold;">
+                <p> Compressor Section </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Comp 1 </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Comp 2 </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Comp 3 </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Suction Pressure </p>
+              </td>
+              <td style="text-align:center;">
+                <p> PsiG </p>
+              </td>
+              <td style="text-align:center;">
+                <p> 55 - 90 </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac33} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac34} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac35} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Discharge Pressure </p>
+              </td>
+              <td style="text-align:center;">
+                <p> PsiG </p>
+              </td>
+              <td style="text-align:center;">
+                <p> 200 - 300 </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac36} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac37} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac38} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Oil Level </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac39} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac40} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac41} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Leakage </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac42} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac43} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac44} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Sight Glass </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac45} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac46} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac47} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Check Current Compressor </p>
+              </td>
+              <td colspan="2" style="text-align:center;">
+                <p> Amp </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac48}, {ac49}, {ac50} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac51}, {ac52}, {ac53} </p>
+              </td>
+              <td style="text-align:center;">
+                <p> {ac54}, {ac55}, {ac56} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td rowspan="2">
+                <p> 4 </p>
+              </td>
+              <td colspan="7" style="font-weight: bold;">
+                <p> Reheat </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Check current element operation </p>
+              </td>
+              <td colspan="2" style="text-align:center;">
+                <p> Amp </p>
+              </td>
+              <td>
+                <p> L1: {ac57} </p>
+              </td>
+              <td>
+                <p> L2: {ac58} </p>
+              </td>
+              <td>
+                <p> L3: {ac59} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td rowspan="4">
+                <p> 5 </p>
+              </td>
+              <td colspan="7" style="font-weight: bold;">
+                <p> Humidifier </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Make up water valve </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac60} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Water level sensor </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac61} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Infra Red/Stream Current </p>
+              </td>
+              <td colspan="2" style="text-align:center;">
+                <p> Amp </p>
+              </td>
+              <td>
+                <p> L1: {ac62} </p>
+              </td>
+              <td>
+                <p> L2: {ac63} </p>
+              </td>
+              <td>
+                <p> L3: {ac64} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td rowspan="5">
+                <p> 6 </p>
+              </td>
+              <td colspan="7" style="font-weight: bold;">
+                <p> Air Cooled Condensor </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Check Current Operation </p>
+              </td>
+              <td colspan="2" style="text-align:center;">
+                <p> Amp </p>
+              </td>
+              <td>
+                <p> L1: {ac65} </p>
+              </td>
+              <td>
+                <p> L2: {ac66} </p>
+              </td>
+              <td>
+                <p> L3: {ac67} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Check Condensor Coil </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac68} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Bearing </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac69} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Condition arround area Cond. </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac70} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td rowspan="6">
+                <p> 7 </p>
+              </td>
+              <td colspan="7" style="font-weight: bold;">
+                <p> General Function </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Cooling Test </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac71} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Heating Test </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac72} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Humidification Test </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac73} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Dehumidification Test </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac74} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Alarm Test </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac75} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td rowspan="4">
+                <p> 8 </p>
+              </td>
+              <td colspan="7" style="font-weight: bold;">
+                <p> Cleaning </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Cleaning unit air conditioner </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac76} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Cleaning air filter </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac77} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Cleaning drainage </p>
+              </td>
+              <td style="text-align:center;">
+                <p> N/A </p>
+              </td>
+              <td style="text-align:center;">
+                <p> Ok or Not Ok </p>
+              </td>
+              <td colspan="3" style="text-align:center;">
+                <p> {ac78} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td rowspan="3">
+                <p> 9 </p>
+              </td>
+              <td style="font-weight: bold;">
+                <p> Room Condition </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+              <td colspan="2">
+                <p> Set Point </p>
+              </td>
+              <td colspan="2" style="text-align:center;">
+                <p> Actual Return </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Temperature </p>
+              </td>
+              <td style="text-align:center;">
+                <p> °C </p>
+              </td>
+              <td colspan="2" style="text-align:center;">
+                <p> {ac79} </p>
+              </td>
+              <td colspan="2" style="text-align:center;">
+                <p> {ac80} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p> Humidity </p>
+              </td>
+              <td style="text-align:center;">
+                <p> %RH </p>
+              </td>
+              <td colspan="2" style="text-align:center;">
+                <p> {ac81} </p>
+              </td>
+              <td colspan="2" style="text-align:center;">
+                <p> {ac82} </p>
+              </td>
+              <td>
+                <p> &#xa0; </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4" style="border-left: 2px solid #000;border-right: 2px solid #000;border-bottom:0;">
+          <table cellspacing="0" cellpadding="0" class="table is-narrow" style="margin:0;">
+            <tr>
+              <td colspan="2" style="border: 1px solid #000;width:50%;">
+                <p>
+                  <strong>Status</strong>
+                </p>
+              </td>
+              <td style="border-bottom:0;botder-top:0;width:1%;">
+                <p>
+                  <strong>&#xa0;</strong>
+                </p>
+              </td>
+              <td rowspan="4" style="border: 1px solid #000;">
+                <p> Notes: </p>
+                <p> {nota-ket} </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000;">
+                <p>
+                  <strong>Normal</strong>
+                </p>
+              </td>
+              <td style="text-align:center;border: 1px solid #000;">
+                <p> {s-1} </p>
+              </td>
+              <td style="border:0;">
+                <p>
+                  <strong>&#xa0;</strong>
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000;">
+                <p>
+                  <strong>Failure</strong>
+                </p>
+              </td>
+              <td style="text-align:center;border: 1px solid #000;">
+                <p> {s-2} </p>
+              </td>
+              <td style="border:0;">
+                <p>
+                  <strong>&#xa0;</strong>
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000;">
+                <p>
+                  <strong>Repair</strong>
+                </p>
+              </td>
+              <td style="text-align:center;border: 1px solid #000;">
+                <p> {s-3} </p>
+              </td>
+              <td style="border:0;">
+                <p>
+                  <strong>&#xa0;</strong>
+                </p>
+              </td>
+            </tr>
+          </table>
+          <p></p>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="border-left: 2px solid #000;border-bottom:0;width:50%;">
+            <strong>Customer,</strong>
+          <br/>
+          <div style="width:50%;height:auto;margin:0;padding:0;"> {id-cust-tt} </div>
+        </td>
+        <td colspan="2" style="border-right: 2px solid #000;border-bottom:0;">
+            <strong>Engineer/Technician,</strong>
+          <br/>
+          <div style="width:50%;height:auto;margin:0;padding:0;"> {id-tech-tt} </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="border-left: 2px solid #000;border-bottom: 2px solid #000;width:50%;">
+          <p>
+            <strong>______________________</strong>
+          <br/>
+            <strong>Name:</strong>{id-cust}
+          </p>
+        </td>
+        <td colspan="2" style="border-right: 2px solid #000;border-bottom: 2px solid #000;">
+          <p>
+            <strong>_______________________</strong>
+          <br/>
+            <strong>Name: </strong>{id-tech}
+          </p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+
+<script src="js/jquery-3.6.0.min.js"></script>
+<script src="js/jquery-ui.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/agency.js"></script>
+<script src="js/jquery.easing.min.js"></script>
+<script src="js/classie.js"></script>
+<script src="js/sweetalert.min.js"></script>
+<script src="js/html2pdf.bundle.min.js"></script>
+<script defer src="js/all.js"></script>
+
+<script type="text/javascript">
+
+
+var db;
+var dfturnota,dftksupp,dftnsupp,dftkode,dftnota,dftfoto,dftstatus,dfttanggal,dfttglnota,dftjob,dftjobstat,dftketerangan,dfttandatangan;
+var inkode,inarea,inpic,inserial,inmodel,innumlabel,inperiode,inlogo,inlat,inlon;
+var inpIden,inpPgn,signtek,logocom;
+var acValues = []; // This will hold ac01 to ac82
+
+// Add the event listener for PDF generation
+document.getElementById("generate-pdf").addEventListener("click", function () {
+    generatePDF();
+});
+
+document.addEventListener('deviceready', onDeviceReady, false);
+
+function onDeviceReady() {
+//  cordova.plugins.backgroundMode.enable();
+//  cordova.plugins.backgroundMode.overrideBackButton();
+//  cordova.plugins.backgroundMode.setDefaults({ silent: true });
+    if (!db) {
+      SpinnerDialog.show();
+
+        db = window.sqlitePlugin.openDatabase({
+            name: "acguy.db",
+            location: "default"
+        });
+
+        if (db) {
+            console.log("Database initialized successfully");
+            db.transaction(function(tx) {
+              tx.executeSql("SELECT * FROM sjdaft ORDER BY dftanggal DESC LIMIT 1", [], function (tx, result2) {
+                  if (result2.rows.length > 0) {
+                      dfturnota = result2.rows.item(0).dfnota;
+                      dftkode = result2.rows.item(0).dfkode;
+                      dftksupp = result2.rows.item(0).dfksupp;
+                      dftnsupp = result2.rows.item(0).dfnsupp;
+                      dftnota = result2.rows.item(0).dfnota;
+                      dftfoto = result2.rows.item(0).dffoto;
+                      dftstatus = result2.rows.item(0).dfstatus;
+                      dfttanggal = result2.rows.item(0).dftanggal;
+                      dfttglnota = result2.rows.item(0).dftglnota;
+                      dftjob = result2.rows.item(0).dfjob;
+                      dftjobstat = result2.rows.item(0).dfjobstat;
+                      dftketerangan = result2.rows.item(0).dfketerangan;
+                      dfttandatangan = result2.rows.item(0).dftandatangan;
+
+                      tx.executeSql("select * from sjpgn", [], function(tx, results) {
+                        varcekpgn = results.rows.length;
+                        if(varcekpgn == 1){
+                          inpIden = results.rows.item(0).pgnama;
+                          inpPgn = results.rows.item(0).pgident;
+                          signtek = results.rows.item(0).pgtata;
+                          logocom = results.rows.item(0).pgcomp;
+                          tx.executeSql("SELECT * FROM sjsupp WHERE spkode=?", [dftksupp], function(tx4, result4) {
+                              if (result4.rows.length > 0) {
+                                  // Set global variables based on sjdsupp results
+                                  inarea = result4.rows.item(0).sparea;
+                                  inpic = result4.rows.item(0).sppic;
+                                  inserial = result4.rows.item(0).spserial;
+                                  inmodel = result4.rows.item(0).spmodel;
+                                  innumlabel = result4.rows.item(0).spnumlabel;
+                                  inperiode = result4.rows.item(0).spperiode;
+                                  inlogo = result4.rows.item(0).splogo;
+                                  inlat = result4.rows.item(0).splat;
+                                  inlon = result4.rows.item(0).splon;
+                                  isiData(); // Call the function to fetch and display the data
+                              }
+
+                          }, function(error) {
+                              console.error('Transaction failed: ' + error.message);
+                          }); // End fifth query
+                        }
+                      });
+
+                  } else {
+                      console.error('No data found in sjdaft');
+                  }
+              });
+            }, function(error) {
+                console.error('Transaction failed: ' + error.message);
+            });
+        } else {
+            console.error("DB Error Init: Could not initialize the database");
+        }
+
+    }
+}
+
+function isiData() {
+    if (!db) {
+        console.error("Database is not initialized.");
+        return;
+    }
+
+    var selectQueries = [
+        {
+            query: "SELECT * FROM sf001 WHERE sf01idnota=?",
+                    callback: function(tx, results) {
+                if (results.rows.length > 0) {
+                    var row = results.rows.item(0);
+                    acValues[0] = row.sf01v01.split(",")[0]; // ac01
+                    acValues[1] = row.sf01v01.split(",")[1]; // ac02
+                    acValues[2] = row.sf01v01.split(",")[2]; // ac03
+                    acValues[3] = row.sf01v02.split(",")[0]; // ac04
+                    acValues[4] = row.sf01v02.split(",")[1]; // ac05
+                    acValues[5] = row.sf01v02.split(",")[2]; // ac06
+                    acValues[6] = row.sf01v03; // ac07
+                    acValues[7] = row.sf01v04; // ac08
+
+                } else {
+                    console.log('sf001: NO DATA');
+                }
+            }
+        },
+        {
+            query: "SELECT * FROM sf002 WHERE sf02idnota=?",
+                    callback: function(tx, results) {
+                if (results.rows.length > 0) {
+                    var row = results.rows.item(0);
+                    acValues[8] = row.sf02v01.split(",")[0]; // ac09
+                    acValues[9] = row.sf02v01.split(",")[1]; // ac10
+                    acValues[10] = row.sf02v01.split(",")[2]; // ac11
+                    acValues[11] = row.sf02v02.split(",")[0]; // ac12
+                    acValues[12] = row.sf02v02.split(",")[1]; // ac13
+                    acValues[13] = row.sf02v02.split(",")[2]; // ac14
+                    acValues[14] = row.sf02v03.split(",")[0]; // ac15
+                    acValues[15] = row.sf02v03.split(",")[1]; // ac16
+                    acValues[16] = row.sf02v03.split(",")[2]; // ac17
+                    acValues[17] = row.sf02v04.split(",")[0]; // ac18
+                    acValues[18] = row.sf02v04.split(",")[1]; // ac19
+                    acValues[19] = row.sf02v04.split(",")[2]; // ac20
+                    acValues[20] = row.sf02v05.split(",")[0]; // ac21
+                    acValues[21] = row.sf02v05.split(",")[1]; // ac22
+                    acValues[22] = row.sf02v05.split(",")[2]; // ac23
+
+                    // sf02v05 has nested arrays (ac21 - ac29)
+                    var sf02v06 = row.sf02v06.split(",");
+                    acValues[23] = sf02v06[0]; // ac24
+                    acValues[24] = sf02v06[1]; // ac25
+                    acValues[25] = sf02v06[2]; // ac26
+                    acValues[26] = sf02v06[3]; // ac27
+                    acValues[27] = sf02v06[4]; // ac28
+                    acValues[28] = sf02v06[5]; // ac29
+                    acValues[29] = sf02v06[6]; // ac30
+                    acValues[30] = sf02v06[7]; // ac31
+                    acValues[31] = sf02v06[8]; // ac32
+
+                } else {
+                    console.log('sf002: NO DATA');
+                }
+            }
+        },
+        {
+            query: "SELECT * FROM sf003 WHERE sf03idnota=?",
+                    callback: function(tx, results) {
+                if (results.rows.length > 0) {
+                    var row = results.rows.item(0);
+                    acValues[32] = row.sf03v01.split(",")[0]; // ac33
+                    acValues[33] = row.sf03v01.split(",")[1]; // ac34
+                    acValues[34] = row.sf03v01.split(",")[2]; // ac35
+                    acValues[35] = row.sf03v02.split(",")[0]; // ac36
+                    acValues[36] = row.sf03v02.split(",")[1]; // ac37
+                    acValues[37] = row.sf03v02.split(",")[2]; // ac38
+                    acValues[38] = row.sf03v03.split(",")[0]; // ac39
+                    acValues[39] = row.sf03v03.split(",")[1]; // ac40
+                    acValues[40] = row.sf03v03.split(",")[2]; // ac41
+                    acValues[41] = row.sf03v04.split(",")[0]; // ac42
+                    acValues[42] = row.sf03v04.split(",")[1]; // ac43
+                    acValues[43] = row.sf03v04.split(",")[2]; // ac44
+                    acValues[44] = row.sf03v05.split(",")[0]; // ac45
+                    acValues[45] = row.sf03v05.split(",")[1]; // ac46
+                    acValues[46] = row.sf03v05.split(",")[2]; // ac47
+
+                    // sf03v06 has nested arrays (ac45 - ac56)
+                    var sf03v06 = row.sf03v06.split(",");
+                    acValues[47] = sf03v06[0]; // ac48
+                    acValues[48] = sf03v06[1]; // ac49
+                    acValues[49] = sf03v06[2]; // ac50
+                    acValues[50] = sf03v06[3]; // ac51
+                    acValues[51] = sf03v06[4]; // ac52
+                    acValues[52] = sf03v06[5]; // ac53
+                    acValues[53] = sf03v06[6]; // ac54
+                    acValues[54] = sf03v06[7]; // ac55
+                    acValues[55] = sf03v06[8]; // ac56
+
+                } else {
+                    console.log('sf003: NO DATA');
+                }
+            }
+        },
+        {
+            query: "SELECT * FROM sf004 WHERE sf04idnota=?",
+                    callback: function(tx, results) {
+                if (results.rows.length > 0) {
+                    var row = results.rows.item(0);
+                    acValues[56] = row.sf04v01.split(",")[0]; // ac57
+                    acValues[57] = row.sf04v01.split(",")[1]; // ac58
+                    acValues[58] = row.sf04v01.split(",")[2]; // ac59
+
+                } else {
+                    console.log('sf004: NO DATA');
+                }
+            }
+        },
+        {
+            query: "SELECT * FROM sf005 WHERE sf05idnota=?",
+                    callback: function(tx, results) {
+                if (results.rows.length > 0) {
+                    var row = results.rows.item(0);
+                    acValues[59] = row.sf05v01; // ac60
+                    acValues[60] = row.sf05v02; // ac61
+                    acValues[61] = row.sf05v03.split(",")[0]; // ac62
+                    acValues[62] = row.sf05v03.split(",")[1]; // ac63
+                    acValues[63] = row.sf05v03.split(",")[2]; // ac64
+
+                } else {
+                    console.log('sf005: NO DATA');
+                }
+            }
+        },
+        {
+            query: "SELECT * FROM sf006 WHERE sf06idnota=?",
+                    callback: function(tx, results) {
+                if (results.rows.length > 0) {
+                    var row = results.rows.item(0);
+                    acValues[64] = row.sf06v01.split(",")[0]; // ac65
+                    acValues[65] = row.sf06v01.split(",")[1]; // ac66
+                    acValues[66] = row.sf06v01.split(",")[2]; // ac67
+                    acValues[67] = row.sf06v02; // ac68
+                    acValues[68] = row.sf06v03; // ac69
+                    acValues[69] = row.sf06v04; // ac70
+
+                } else {
+                    console.log('sf006: NO DATA');
+                }
+            }
+        },
+        {
+            query: "SELECT * FROM sf007 WHERE sf07idnota=?",
+                    callback: function(tx, results) {
+                if (results.rows.length > 0) {
+                    var row = results.rows.item(0);
+                    acValues[70] = row.sf07v01; // ac71
+                    acValues[71] = row.sf07v02; // ac72
+                    acValues[72] = row.sf07v03; // ac73
+                    acValues[73] = row.sf07v04; // ac74
+                    acValues[74] = row.sf07v05; // ac75
+
+                } else {
+                    console.log('sf007: NO DATA');
+                }
+            }
+        },
+        {
+            query: "SELECT * FROM sf008 WHERE sf08idnota=?",
+                    callback: function(tx, results) {
+                if (results.rows.length > 0) {
+                    var row = results.rows.item(0);
+                    acValues[75] = row.sf08v01; // ac76
+                    acValues[76] = row.sf08v02; // ac77
+                    acValues[77] = row.sf08v03; // ac78
+
+                } else {
+                    console.log('sf008: NO DATA');
+                }
+            }
+        },
+        {
+            query: "SELECT * FROM sf009 WHERE sf09idnota=?",
+                    callback: function(tx, results) {
+                if (results.rows.length > 0) {
+                    var row = results.rows.item(0);
+                    acValues[78] = row.sf09v01.split(",")[0]; // ac79
+                    acValues[79] = row.sf09v01.split(",")[1]; // ac80
+                    acValues[80] = row.sf09v02.split(",")[0]; // ac81
+                    acValues[81] = row.sf09v02.split(",")[1]; // ac82
+
+                    console.log(JSON.stringify("Got main data"+JSON.stringify(acValues)));
+                    var dataVar = {};
+
+                    for (var i = 0; i < 82; i++) {
+                        var key = "ac" + (i + 1).toString().padStart(2, '0'); // Generate ac01, ac02, etc.
+                        dataVar[key] = acValues[i];
+                    }
+                    dataVar['LOGO-1'] = '<img src="data:image/png;base64,'+logocom+'" style="width:32px;height:32px;" /><br/><span style="text-align:center;font-weight:bold;">PT. Gading Fortuna Mandiri</span>';
+                    dataVar['LOGO-2'] = '<img src="data:image/png;base64,'+inlogo+'"  style="width:32px;height:32px;" /><br/><span style="text-align:center;font-weight:bold;">'+dftnsupp+'</span>';
+
+                    dataVar['head-tanggal'] = dfttglnota;
+                    dataVar['head-customer'] = dftnsupp;
+                    dataVar['head-periode'] = inperiode;
+                    dataVar['head-label-number'] = innumlabel;
+                    dataVar['head-model'] = inmodel;
+                    dataVar['head-serial'] = inserial;
+
+                    // dfturnota,dftksupp,dftnsupp,dftkode,dftnota,dftfoto,dftstatus,dfttanggal,dfttglnota,dftjob,dftjobstat,dftketerangan,dfttandatangan
+                    dataVar['notasupp'] = dftksupp;
+                    dataVar['notakode'] = dftkode;
+                    dataVar['notatgl'] = dfttglnota;
+                    dataVar['nota-ket'] = dftketerangan;
+                    dataVar['id-cust'] = dftstatus;
+                    dataVar['id-cust-tt'] = '<img src="data:image/png;base64,'+dfttandatangan+'" />';
+                    dataVar['id-tech'] = inpIden;
+                    dataVar['id-tech-tt'] = '<img src="data:image/png;base64,'+signtek+'" />';
+
+                    if(dftjob == '1'){
+                      dataVar['j-1'] = '&#10003;';
+                    } else {
+                      dataVar['j-1'] = '&#10060;';
+                    }
+                    if(dftjob == '2'){
+                      dataVar['j-2'] = '&#10003;';
+                    } else {
+                      dataVar['j-2'] = '&#10060;';
+                    }
+                    if(dftjob == '3'){
+                      dataVar['j-3'] = '&#10003;';
+                    } else {
+                      dataVar['j-3'] = '&#10060;';
+                    }
+                    if(dftjob == '4'){
+                      dataVar['j-4'] = '&#10003;';
+                    } else {
+                      dataVar['j-4'] = '&#10060;';
+                    }
+
+                    if(dftjobstat == '1'){
+                      dataVar['s-1'] = '&#10003;';
+                    } else {
+                      dataVar['s-1'] = '&#10060;';
+                    }
+                    if(dftjobstat == '2'){
+                      dataVar['s-2'] = '&#10003;';
+                    } else {
+                      dataVar['s-2'] = '&#10060;';
+                    }
+                    if(dftjobstat == '3'){
+                      dataVar['s-3'] = '&#10003;';
+                    } else {
+                      dataVar['s-3'] = '&#10060;';
+                    }
+
+                    $.ajax({
+                      url: 'https://arsetontong.top/suratjalan/sm_report',
+                      type: 'POST',
+                      data: jQuery.param({
+                        dtpgn: inpPgn,
+                        dtreport: JSON.stringify(dataVar)
+                      }),
+                      success: function(data) {
+                        if(data){
+                          SpinnerDialog.hide();
+                          alert(data);
+                        }
+                      },
+                      error: function(jqXHR, textStatus, errorThrown) {
+                        alert(textStatus + jqXHR.responseText);
+                      }
+                    }).done(function() {
+                      SpinnerDialog.hide();
+                      $('body').html(function(index, html) {
+                          for (var key in dataVar) {
+                              if (dataVar.hasOwnProperty(key)) {
+                                  html = html.replaceAll('{' + key + '}', dataVar[key] != null ? dataVar[key] : 'N/A');
+                              }
+                          }
+                          return html;
+                      });
+                    });
+
+
+                } else {
+                    console.log('sf009: NO DATA');
+                }
+            }
+        }
+    ];
+
+    db.transaction(function(tx) {
+      if (dftkode) {
+          selectQueries.forEach(function (queryObj) {
+              tx.executeSql(queryObj.query, [dftkode], queryObj.callback, function (tx, error) {
+                  console.error('Error fetching data ' + dftkode + ': ' + error.message);
+              });
+          });
+      } else {
+          console.error('dftkode is null or undefined');
+      }
+    }, function(error) {
+        console.error('Transaction failed: ' + error.message);
+    });
+}
+
+function generatePDF() {
+SpinnerDialog.show();
+    $('#generate-pdf').addClass('is-loading');
+
+    var element = document.getElementById('acreport');
+
+    var opt = {
+        margin: [0.1, 0.1, 0.1, 0.1], // Set the margins (in inches)
+        filename: dftkode + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 }, // Set scale for high-quality rendering
+        jsPDF: { unit: 'in', format: 'legal', orientation: 'portrait' } // US Legal size format
+    };
+
+
+    // Generate the PDF and get the Blob object for the first page only
+    html2pdf().from(element).set(opt).outputPdf('blob').then(function(pdfBlob) {
+        savePDFToFile(pdfBlob);
+    });
+}
+
+function savePDFToFile(pdfBlob) {
+    // Define file path where you want to save the PDF
+    var filePath = cordova.file.externalRootDirectory + 'Download/'+dftkode+'.pdf';
+
+    window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory, function (dirEntry) {
+        dirEntry.getFile('Download/'+dftkode+'.pdf', { create: true, exclusive: false }, function (fileEntry) {
+            fileEntry.createWriter(function (fileWriter) {
+                fileWriter.onwriteend = function () {
+                    console.log('PDF file successfully saved at: ' + filePath);
+                    $('#generate-pdf').removeClass('is-loading');
+                    setTimeout(function(){
+                      SpinnerDialog.hide();
+                      swal({
+                        title: "Done!",
+                        text: "File report tersimpan di folder DOWNLOAD",
+                        timer: 5000,
+                        showConfirmButton: true
+                      }, function() {
+                        window.location.replace('index.html');
+                      });
+                    },500)
+                };
+
+                fileWriter.onerror = function (e) {
+                    console.error('Failed to save PDF: ' + e.toString());
+                };
+
+                // Write the Blob object to the file
+                fileWriter.write(pdfBlob);
+            });
+        });
+    });
+}
+
+
+
+</script>
+
+</body>
+
+</html>

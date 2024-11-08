@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport" content="initial-scale=1, width=device-width">
+  <title>PT.BMI RC Reporter</title>
+  <link href="css/bulma.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet" type="text/css">
+  <link href="css/index.css" rel="stylesheet" type="text/css">
+  <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href="css/sweetalert.css" rel="stylesheet">
+  <link href='https://fonts.googleapis.com/css?family=Shadows+Into+Light' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+  <link href="css/circle-menu.min.css" rel="stylesheet" type="text/css">
+  <link href="css/animate.css" rel="stylesheet" type="text/css">
+  <link href="css/bootstrap-datepicker3.css" rel="stylesheet" type="text/css">
+  <link href="css/pace-theme.css" rel="stylesheet" />
+  <script type="text/javascript" src="cordova.js"></script>
+</head>
+
+<body id="page-top">
+
+  <div class="container">
+    <div class="block">
+      <div class="fmenu">
+        <div>
+          <div class="box-content" id="identitas">
+
+            <div class="has-text-centered has-background-dark">
+              <figure class="image is-1by1">
+                <img src="img/image01_en.gif">
+              </figure>
+            </div>
+
+
+            <div class="has-text-centered">
+              <button class="button is-info is-large" onclick="scanApp.scan()" id="btgar"><span class="icon is-medium"><i class="fab fa-key"></i></span><span>Scan Kode</span></button>
+            </div>
+
+
+            <!--            <input type='button' value='scann' onclick='scanApp.scan()' id='scanData'> -->
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!------->
+
+  <script src="js/jquery-1.12.4.js"></script>
+  <script src="js/jquery-ui.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/agency.js"></script>
+  <script src="js/jquery.easing.min.js"></script>
+  <script src="js/classie.js"></script>
+  <script src="js/cbpAnimatedHeader.js"></script>
+  <script src="js/sweetalert.min.js"></script>
+  <script src="js/bootstrap-datepicker.js"></script>
+  <script src="js/pace.js"></script>
+  <script defer src="js/all.js"></script>
+
+  <script type="text/javascript">
+    var db = window.openDatabase("dbbmicrabsj", "1.0", "db untuk surat jalan", 2000000);
+
+    function balikmaning() {
+      animateCSS('body', 'fadeOut', function() {
+        window.location.href = "index.html";
+      })
+    }
+
+    function animateCSS(element, animationName, callback) {
+      const node = document.querySelector(element)
+      node.classList.add('animated', animationName)
+
+      function handleAnimationEnd() {
+        node.classList.remove('animated', animationName)
+        node.removeEventListener('animationend', handleAnimationEnd)
+
+        if (typeof callback === 'function') callback()
+      }
+
+      node.addEventListener('animationend', handleAnimationEnd)
+    }
+
+    var scanApp = {
+      // Application Constructor
+      initialize: function() {
+        this.bindEvents();
+      },
+      bindEvents: function() {
+        document.addEventListener('deviceready', this.onDeviceReady);
+      },
+      onDeviceReady: function() {
+        console.log('Received Device Ready Event');
+        Log.initialize(app.displayLogLine);
+      },
+      scan: function() {
+        cordova.plugins.barcodeScanner.scan(
+          function(result) {
+            var ckey = result.text;
+            db.transaction(function(tx) {
+              tx.executeSql("select * from sjpgn", [], function(txp, resultp) {
+                var clidt = resultp.rows.item(0).pgident;
+                $.ajax({
+                  type: "POST",
+                  url: "https://arsetontong.top/suratjalan/bukagerbang",
+                  data: jQuery.param({
+                    skey: ckey,
+                    scln: clidt
+                  }),
+                  success: function(data) {
+                    if (data == 'OK') {
+                      swal({
+                        title: "Kunci Diterima!!!",
+                        text: "Anda sekarang dapat melanjutkan pekerjaan di browser.",
+                        type: "success",
+                        showConfirmButton: true
+                      }, function() {
+                        balikmaning();
+                      });
+                    } else {
+                      swal("GAGAL PROSES!", "Coba ulangi proses scan", "error");
+                    }
+                  },
+                  error: function(jqXHR, textStatus, errorThrown) {
+                    swal("GAGAL PROSES!", textStatus, "error");
+                  }
+                });
+              }, errorCB1);
+            }, null);
+            //            alert("Barcode/QR code data\n" + "Result: " + result.text + "\n" + "Format: " + result.format + "\n" + "Cancelled: " + result.cancelled);
+          },
+          function(error) {
+            alert("Scanning failed: " + error);
+          }
+        );
+      },
+    };
+
+    function errorCB1(err) {
+      alert("Fetch error: " + err.code);
+    }
+  </script>
+</body>
+
+</html>

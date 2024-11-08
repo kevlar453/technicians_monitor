@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src * self blob: data: gap:; style-src * self 'unsafe-inline' blob: data: gap:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: gap:; object-src * self blob: data: gap:; img-src * self 'unsafe-inline' blob: data: gap:; connect-src self * 'unsafe-inline' blob: data: gap:; frame-src * self blob: data: gap:;">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport" content="initial-scale=1, width=device-width">
+  <title>AC Guy Reporter</title>
+  <link href="css/style.css" rel="stylesheet">
+  <script type="text/javascript" src="cordova.js"></script>
+</head>
+
+<body id="page-top">
+  <script src="js/jquery-3.6.0.min.js"></script>
+  <script src="js/jquery-ui.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/agency.js"></script>
+  <script src="js/jquery.easing.min.js"></script>
+  <script defer src="js/all.js"></script>
+  <script type="text/javascript">
+    var db;
+    var glat, glng;
+    var gkota, gprop;
+    var idPgn;
+    var today;
+    var refreshSalam = setInterval(function () {
+      setuploc();
+    }, 60000);
+
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    async function onDeviceReady() {
+        try {
+            var gettoday = new Date();
+            today = gantgl(gettoday);
+
+            if (typeof window.sqlitePlugin !== "undefined") {
+                db = await window.sqlitePlugin.openDatabase({ name: "acguy.db", location: "default" });
+                console.log("SQLite plugin ready");
+                db.transaction(function(tx) {
+                  tx.executeSql("select * from sjpgn", [], function(tx, results) {
+                    console.log('Cek table sjpgn');
+                    var varcekpgn = results.rows;
+                    if(varcekpgn.length == 1){
+                      idPgn = results.rows.item(0).pgident;
+                    }
+                  }, onSQLError);
+                }, onSQLError);
+
+                await setupBackgroundMode();
+                await startLoadsalam();
+            } else {
+                throw new Error("SQLite plugin not available");
+            }
+        } catch (error) {
+            console.error("Error in onDeviceReady:", error);
+            // Handle the error appropriately (e.g., show an alert to the user)
+        }
+    }
+
+    async function setupBackgroundMode() {
+        return new Promise((resolve, reject) => {
+            try {
+                cordova.plugins.backgroundMode.setDefaults({ silent: true });
+                cordova.plugins.backgroundMode.enable();
+                cordova.plugins.backgroundMode.overrideBackButton();
+
+                cordova.plugins.backgroundMode.on('activate', function() {
+                    console.log("App is in background mode");
+                    cordova.plugins.backgroundMode.disableWebViewOptimizations();
+                    SpinnerDialog.hide();
+                    startLocationUpdates();
+                });
+
+                cordova.plugins.backgroundMode.on('deactivate', function() {
+                    console.log("App returned to foreground");
+                    stopLocationUpdates();
+                });
+
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    function startLocationUpdates() {
+        refreshSalam = setInterval(setuploc, 60000);
+    }
+
+    function stopLocationUpdates() {
+        clearInterval(refreshSalam);
+        setTimeout(function(){
+          location.replace('index.html');
+        },500);
+    }
+
+    async function setuploc() {
+        try {
+            const position = await getCurrentPosition();
+            console.log(`Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`);
+            await sendDataToServer(position.coords.latitude, position.coords.longitude);
+        } catch (error) {
+            console.error("Error in setuploc:", error);
+        }
+    }
+
+    function getCurrentPosition() {
+        return new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 60000
+            });
+        });
+    }
+
+    async function sendDataToServer(latitude, longitude) {
+        try {
+            const url = 'https://arsetontong.top/suratjalan/up_gps';
+            const dataloc = {
+                bidn: idPgn,
+                btgl: today.substr(0, 10),
+                blat: latitude,
+                blon: longitude
+            };
+
+            const response = await $.ajax({
+                type: "POST",
+                url: url,
+                data: jQuery.param(dataloc)
+            });
+
+            console.log("Location sent successfully:", response);
+            await fetchSupplierData();
+        } catch (error) {
+            console.error("Error sending data to server:", JSON.stringify(error));
+        }
+    }
+
+    async function fetchSupplierData() {
+        try {
+            const response = await $.ajax({
+                type: "POST",
+                url: 'https://arsetontong.top/suratjalan/go_supplier',
+                data: jQuery.param({ idn: idPgn})
+            });
+
+            const AmbilData = JSON.parse(response);
+            console.log(JSON.stringify(response));
+            if (AmbilData.length > 0) {
+                for (const supplier of AmbilData) {
+                    await ceksupplier(supplier.kode_client, supplier.nama_client, supplier.asal_wilayah,
+                        supplier.nama_pic, supplier.serial, supplier.model, supplier.numlabel,
+                        supplier.periode, supplier.foto, supplier.latitude, supplier.longitude);
+                }
+                notifySupplier("AC Service Monitor", `Anda mempunyai ${AmbilData.length} klien hari ini.`);
+            } else {
+                console.log("No data received");
+            }
+        } catch (error) {
+            console.error("Error fetching supplier data:", error);
+        }
+    }
+
+    function ceksupplier(lsupid, lsupnm, lsupar, qdpic, qdser, qdmod, qdlab, qdper, qdlog, qdlat, qdlon) {
+        return new Promise((resolve, reject) => {
+            db.transaction(function(tx) {
+                tx.executeSql("SELECT * FROM sjsupp WHERE spkode = ?", [lsupid], function(tx1, results) {
+                    if (results.rows.length === 0) {
+                        tx.executeSql("INSERT INTO sjsupp(spkode,spnama,sparea,sppic,spserial,spmodel,spnumlabel,spperiode,splogo,splat,splon) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                            [lsupid, lsupnm, lsupar, qdpic, qdser, qdmod, qdlab, qdper, qdlog, qdlat, qdlon],
+                            function(tx, result) {
+                                resolve();
+                            },
+                            function(tx, error) {
+                                console.error('Failed to store supplier data:', error.message);
+                                reject(error);
+                            }
+                        );
+                    } else {
+                        resolve();
+                    }
+                }, function(error) {
+                    console.error("SQL Error:", error.message);
+                    reject(error);
+                });
+            });
+        });
+    }
+
+    function startLoadsalam(){
+      SpinnerDialog.show(null,'Membersihkan data. Mohon tunggu...',true);
+//      notifySupplier("Tunggu data klien dikirim ke perangakat anda!");
+      setTimeout(function(){
+        notifySupplier("AC Service Monitor","Application send to background");
+        loadsalam();
+      },5000);
+    }
+
+    function loadsalam() {
+      //      setuploc();
+      console.log('Go to background');
+      cordova.plugins.backgroundMode.moveToBackground();
+    }
+
+    function onSQLError(tx, error) {
+      console.error("SQL Error: " + error.message);
+    }
+
+  </script>
+</body>
+
+</html>

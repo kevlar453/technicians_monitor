@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport" content="initial-scale=1, width=device-width">
+  <title>AC Guy Reporter</title>
+  <link href="css/bulma.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet" type="text/css">
+  <link href="css/index.css" rel="stylesheet" type="text/css">
+  <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href="css/sweetalert.css" rel="stylesheet">
+  <link href="css/animate.css" rel="stylesheet" type="text/css">
+  <link href="css/default.css" rel="stylesheet" type="text/css">
+  <link href="css/default.date.css" rel="stylesheet" type="text/css">
+  <link href="css/pace-theme.css" rel="stylesheet" />
+  <script type="text/javascript" src="cordova.js"></script>
+</head>
+
+<body id="page-top">
+
+  <div class="device">
+    <div class="container-menu is-hidden">
+      <nav class="main-nav" id="main-nav">
+        <ul id="isimenu">
+          <li class="dmenu-item"><a href="#0" onclick="klikmenu();cekkembali();">Kembali</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="block">
+      <div class="is-full has-text-centered">
+        <h3 id="lbsup1" class="title">Klien Hari Ini</h3>
+        <hr class="line01">
+        <div class="has-text-success" id="lbssup1">
+          <h3 class="subtitle is-6">!</h3>
+          <progress class="progress is-info is-hidden" max="100" id="pindik1">0%</progress>
+        </div>
+      </div>
+    </div>
+
+    <div class="block" id="subident1">
+      <form>
+        <div class="field">
+          <input type="hidden" id="krm_idsup">
+          <input type="hidden" id="krm_nmsup">
+          <input type="hidden" id="krm_arsup">
+        </div>
+      </form>
+      <div class="block" id="tblsupp"></div>
+    </div>
+
+    <div class="block is-hidden" id="subident2" style="width:100vw;height:100vh;">
+      <div class="has-text-centered">
+        <div id="success"></div>
+        <blockquote class="small has-text-danger animated pulse infinite">Tanggal Pengerjaan <span><i>[*harus diisi]</i></span></blockquote>
+      </div>
+      <div class="has-text-centered">
+        <input type="text" class="input has-text-centered is-info datepicker" placeholder="Isi Tanggal*" name="fjtgl" id="fjtgl">
+        <input name="prefix__fjtgl__suffix" value="2024/11/01" type="hidden">
+        <input type="hidden" class="input has-text-centered" placeholder="Nomor Nota/SJ" name="nosur" id="nosur" required data-validation-required-message="Mohon diisi" value="">
+      </div>
+      <div class="has-text-centered">
+        <button class="button is-info" onclick="klikmenu();"><span class="fa fa-plus has-text-warning"></span> Buat Laporan</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!------->
+
+  <!-- MODALS START-->
+  <div class="modal" id="moditem">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+
+      <header class="modal-card-head">
+        <p class="modal-card-title">Daftar Item</p>
+        <button class="delete" aria-label="close"></button>
+      </header>
+
+      <div class="block modal-card-body">
+        <div class="block" id="trekap">
+          <table class="table is-narrow is-hidden">
+          </table>
+        </div>
+        <div class="block" id="tdetail">
+          <table class="table is-narrow is-hidden">
+          </table>
+        </div>
+        <div class="block" id="isitem">
+          <form>
+            <div class="field">
+              <input type="hidden" name="kdopt" id="kdopt">
+              <input type="hidden" name="kdsup" id="kdsup">
+            </div>
+            <div class="block">
+              <div id="lstitem"></div>
+            </div>
+            <div class="field">
+              <input type="text" class="input" placeholder="Nama Item" name="itembaru" id="itembaru">
+              <input type="hidden" id="idcaller">
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <footer class="modal-card-foot">
+        <button class="button is-dark" id="tmodsimpan1">Tutup</button>
+        <button class="button is-info is-hidden" onclick="balikmaning();" id="tuprekap">Tutup</button>
+        <button onclick="insertItem();" class="button is-success supsimp" aria-label="close" id="tmodsimpan2">Simpan</button>
+        <button class="button is-primary is-hidden" onclick="resultNT();" id="tupdetail">Kirim Lainnya</button>
+        <button class="button is-warning is-hidden" onclick="kirimNT();" id="kirdetail">Kirim</button>
+      </footer>
+
+    </div>
+  </div>
+  <!-- MODALS END -->
+
+
+  <script src="js/jquery-3.6.0.min.js"></script>
+  <script src="js/jquery-ui.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/agency.js"></script>
+  <script src="js/jquery.easing.min.js"></script>
+  <script src="js/classie.js"></script>
+  <script src="js/sweetalert.min.js"></script>
+  <script src="js/picker.js"></script>
+  <script src="js/picker.date.js"></script>
+  <!--  <script src="js/id_ID.js"></script> -->
+  <script src="js/pace.js"></script>
+  <script src="js/all.js"></script>
+
+  <script type="text/javascript">
+  var gkota,gprop;
+  var glat,glng;
+  var vtsup = 'nodata';
+  var db;
+  var today;
+  var gennota = '';
+
+  // Device ready event
+  document.addEventListener("backbutton", onBackClickEvent, false);
+  document.addEventListener("deviceready", onDeviceReady, false);
+
+  function onDeviceReady() {
+    console.log("Cordova is ready");
+//    cordova.plugins.backgroundMode.disable();
+    cordova.plugins.sntp.setServer("82.197.94.125", 10000);
+    cordova.plugins.sntp.getTime(
+        function(time) {
+          var gettoday = new Date();
+          today = gantgl(gettoday);
+          var tcolor = '#'+today.substr(-8).replace(/:/g,'').replace(/0/g,'e');
+
+          document.documentElement.style.setProperty('--main-bg-color', tcolor);
+          let timez = new Date();
+          console.log("Cordova is ready in: "+gantgl(timez));
+          if (typeof window.sqlitePlugin !== "undefined") {
+            db = window.sqlitePlugin.openDatabase({ name: "acguy.db", location: "default" });
+            document.addEventListener("backbutton", onBackKeyDown, false);
+            db.transaction(function(tx) {
+              tx.executeSql("select * from sjstat", [], function(tx1, result1) {
+                var len1 = result1.rows.length;
+                if (len1 == 0) {
+                  balikmaning();
+                }
+              }, onSQLError);
+            });
+            listSuppAwal();
+          } else {
+            console.error("SQLite plugin not available");
+          }
+
+        },
+        function(errorMessage) {
+            console.log("I haz error:", errorMessage);
+            swal({
+              title: "Sinkronisasi Gagal",
+              text: "Silahkan tekan OK dan buka ulang aplikasi",
+              showConfirmButton: true
+            }, function() {
+              navigator.app.exitApp();
+            });
+        }
+    );
+
+
+  }
+
+  function onBackClickEvent() {
+    db.transaction(function (tx) {
+      tx.executeSql("SELECT * FROM sjstat", [], function (tx1, result1) {
+        if (result1.rows.length === 0) {
+//                navigator.app.exitApp();
+window.location.assign('index.html');
+        } else {
+          db.transaction(function (tx) {
+            tx.executeSql("DELETE FROM sjstat", []);
+//                  navigator.app.exitApp();
+window.location.assign('index.html');
+          }, onSQLError);
+        }
+      }, onSQLError);
+    });
+  }
+
+    function onSQLError(tx, error) {
+      console.error("SQL Error: " + error.message);
+    }
+
+    function klikmenu() {
+      document.body.scrollTop = 0; // For Safari
+      document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        db.transaction(function(tx) {
+          var ntsup = document.getElementById('krm_idsup').value;
+          var tcrm = 0;
+          var tcrc = 0;
+          tx.executeSql("select * from sjdsupp WHERE sdkode=?", [ntsup], function(tx1, results) {
+            var i = 0;
+            var len = results.rows.length,
+              i;
+            if (len > 0) {
+              for (i = 0; i <= len - 1; i++) {
+                crma = parseInt(results.rows.item(i).sdhrma);
+                crmb = parseInt(results.rows.item(i).sdhrmb);
+                crmc = parseInt(results.rows.item(i).sdhrmc);
+                crca = parseInt(results.rows.item(i).sdhrca);
+                crcb = parseInt(results.rows.item(i).sdhrcb);
+                crcc = parseInt(results.rows.item(i).sdhrcc);
+                tcrm = crma + crmb + crmc;
+                tcrc = crca + crcb + crcc;
+              }
+            }
+          }, onSQLError);
+        }, onSQLError);
+        identNota('CRM');
+    }
+
+    $('.datepicker').pickadate({
+      format: 'dd-mm-yyyy',
+      formatSubmit: 'yyyy-mm-dd',
+      hiddenPrefix: 'prefix__',
+      hiddenSuffix: '__suffix'
+    });
+
+    function onBackKeyDown() {
+      window.location.reload();
+    }
+
+    function animateCSS(element, animationName, callback) {
+      const node = document.querySelector(element)
+      node.classList.add('animated', animationName)
+
+      function handleAnimationEnd() {
+        node.classList.remove('animated', animationName)
+        node.removeEventListener('animationend', handleAnimationEnd)
+
+        if (typeof callback === 'function') callback()
+      }
+
+      node.addEventListener('animationend', handleAnimationEnd)
+    }
+
+    function cekkembali() {
+      swal({
+        title: "Menutup Modul",
+        text: "Kembali ke halaman awal!",
+        type: "success",
+        timer: 1500,
+        showConfirmButton: false,
+        showLoaderOnConfirm: true
+      });
+      setTimeout(function() {
+        balikmaning();
+      }, 2000);
+    }
+
+    function listSupp(cnama) {
+      $('#bdsupp').empty();
+      var isinm = cnama.length;
+      if (isinm > 2) {
+        $('#pindik1').removeClass('is-hidden');
+        $("#isitem").addClass('is-hidden');
+        $('.modal-footer').addClass('is-hidden');
+        $('#lbssup1').html('<i>Load data...</i>');
+        db.transaction(function(tx) {
+          tx.executeSql("select * from sjpgn", [], function(tx1, results) {
+            var len1 = results.rows.length;
+            $('#lbssup1').html('<i>Load data user [' + len1 + ']</i>');
+            if (len1 > 0) {
+              dkota = results.rows.item(0).pgkota;
+              qprop = results.rows.item(0).pgprop;
+              dprop = qprop.replace(/\s+/g, '').toLowerCase();
+
+              $('#lbssup1').html('<i>Load supp [' + cnama + ']</i>');
+
+              var contentt = '';
+              var sqsupp = 'SELECT * FROM sjsupp WHERE spnama LIKE ?';
+              var varsq = '%' + cnama + '%';
+              db.transaction(function(tx) {
+                tx.executeSql(sqsupp, [varsq], function(tx1, results) {
+                  $('#lbssup1').html('<i>Load data ' + cnama + '</i>');
+                  var i = 0;
+                  var len = results.rows.length,
+                    i;
+                  for (i = 0; i <= len - 1; i++) {
+                    lsupid = results.rows.item(i).spkode;
+                    lsupnm = results.rows.item(i).spnama;
+                    lsupar = results.rows.item(i).sparea;
+                    var bar = i + 1;
+                    tampSupp(lsupid, lsupnm, lsupar, bar);
+                  }
+                }, onSQLError);
+              }, onSQLError);
+
+              $('#lbssup1').html('<i>Load sukses</i>');
+              $('.modal-footer').removeClass('is-hidden');
+              $('#pindik1').addClass('is-hidden');
+
+            } else {
+              alert('Supplier tidak ditemukan');
+              balikmaning();
+            }
+          }, null);
+        }, null);
+      } else if (isinm == '') {
+        listSuppAwal();
+      }
+    }
+
+    function listSuppAwal() {
+      $('#bdsupp').empty();
+      $('#pindik1').removeClass('is-hidden');
+      $("#isitem").addClass('is-hidden');
+      $('#lbssup1').html('<i>Load data...</i>');
+      db.transaction(function(tx) {
+        tx.executeSql("select * from sjpgn", [], function(tx1, results) {
+          var len1 = results.rows.length;
+          $('#lbssup1').html('<i>Load data user [' + len1 + ']</i>');
+          if (len1 > 0) {
+            dkota = results.rows.item(0).pgkota;
+            qprop = results.rows.item(0).pgprop;
+            dprop = qprop.replace(/\s+/g, '').toLowerCase();
+            var sqsupp = 'SELECT * FROM sjsupp';
+            db.transaction(function(tx) {
+              tx.executeSql(sqsupp, [], function(tx1, results) {
+                var i = 0;
+                var len = results.rows.length,
+                  i;
+                for (i = 0; i <= len - 1; i++) {
+                  lsupid = results.rows.item(i).spkode;
+                  lsupnm = results.rows.item(i).spnama;
+                  lsupar = results.rows.item(i).sparea;
+                  lsupic = results.rows.item(i).sppic;
+                  lsuplg = results.rows.item(i).splogo;
+                  var bar = i + 1;
+                  tampSupp(lsupid, lsupnm, lsupar, lsupic, lsuplg, bar);
+                }
+              }, onSQLError);
+            }, onSQLError, function() {
+              //              $('#moditem').removeClass('is-active');
+              $('#lbssup1').html('<i>Load sukses</i>');
+              $('#pindik1').addClass('is-hidden');
+            });
+
+          }
+        }, null);
+      }, null);
+    }
+
+    function tampSupp(lsupid, lsupnm, lsupar, lsupic, lsuplg, bar) {
+      $('#lbssup1').html('<i>Load data supp-' + bar + '</i>');
+      var contentt = '';
+      if (bar % 2 == 0) {
+        var bgwar = '#f6ffcc';
+      } else {
+        var bgwar = '#f6fffc';
+      }
+      contentt = '<div class="card" onClick="sup_click(this.id);" class="superblock animated fadeInUp" id="' + lsupid + '-' + lsupnm + '-' + lsupar + '" bgcolor="' + bgwar + '">\
+      <div class="card-content"><div class="media"><div class="media-left"><figure class="image is-48x48"><img src="data:image/png;base64,'+lsuplg+'" alt="Klien"/></figure></div><div class="media-content">\
+      <p class="title is-4">'+ lsupnm +'</p><p class="subtitle is-6">'+ lsupar +'</p></div></div>\
+      <div class="content">Nama PIC: '+lsupic+'</div></div></div>';
+      $('#tblsupp').append(contentt);
+    }
+
+    function geofailure(err) {
+      console.log(err);
+    }
+
+    var onGetCurrentPositionSuccess = function(position) {
+      glat = position.coords.latitude;
+      glng = position.coords.longitude;
+
+      nativegeocoder.reverseGeocode(geosuccess, geofailure, glat, glng, {
+        useLocale: true,
+        maxResults: 1
+      });
+    }
+
+    var onGetCurrentPositionError = function(error) {
+      console.log("Couldn't get geo coords from device");
+    }
+
+    function pilitem(daripil) {
+      var judul = '<button type="button" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Pilih Item</h4>';
+      $('.modal-header').html(judul);
+      $("#isitem").removeClass('is-hidden');
+      $('#itembaru').val('');
+      $('#idcaller').val(daripil);
+      fetchData(daripil);
+    }
+
+    function isiket(isinya) {
+      var currID = isiket.caller.arguments[0].target.value;
+      $('#moditem').removeClass('is-active');
+      $('#' + isinya).val(currID);
+    }
+
+    function pad(num, size) {
+      var s = num + "";
+      while (s.length < size) s = "0" + s;
+      return s;
+    }
+
+    function sup_click(clicked_id) {
+      var mySplitResult = clicked_id.split('-');
+      var i;
+
+      $("html, body").animate({ scrollTop: 0 }, "slow");
+
+      for (i = 0; i < mySplitResult.length; i++) {
+        if (i == 0) {
+          document.getElementById("krm_idsup").value = mySplitResult[i];
+          var cidsup = mySplitResult[i];
+        }
+        if (i == 1) {
+          document.getElementById("krm_nmsup").value = mySplitResult[i];
+          $('#lbsup1').text(mySplitResult[i]);
+          $('#lbsup2').text(mySplitResult[i]);
+          var cnmsup = mySplitResult[i];
+        }
+        if (i == 2) {
+          document.getElementById("krm_arsup").value = mySplitResult[i];
+          $('#lbssup1').text(mySplitResult[i]);
+          $('#lbssup2').text(mySplitResult[i]);
+          var carsup = mySplitResult[i];
+        }
+        animateCSS('#lbssup1', 'fadeInDown');
+      };
+      db.transaction(function(tx) {
+        tx.executeSql("select * from sjdaft WHERE dfksupp=?", [cidsup], function(tx1, result) {
+          var len = result.rows.length;
+          var jnota = len + 1;
+          gennota = cidsup + pad(jnota, 3);
+          console.log("Val sup_click: ", len, jnota, cidsup, gennota);
+        }, onSQLError);
+      }, onSQLError);
+//      $('#subident1').addClass('animated fadeOutUp');
+//      $('#subident1').addClass('is-hidden');
+//      $('#subident2').removeClass('is-hidden');
+//      $('#subident2').addClass('fadeInDown');
+//      $('#subident2').addClass('animated');
+      klikmenu();
+    };
+
+
+    function identNota(jinput) {
+      let ntsup = document.getElementById('krm_idsup').value;
+      let ntnma = document.getElementById('krm_nmsup').value;
+      let ntstgl = today.substr(0,10);
+
+      let xday = new Date();
+      let nttgl = xday.getFullYear() + "-" + ("0" + (xday.getMonth() + 1)).slice(-2) + "-" + ("0" + xday.getDate()).slice(-2) + " " +
+                  ("0" + xday.getHours()).slice(-2) + ":" + ("0" + xday.getMinutes()).slice(-2) + ":" + ("0" + xday.getSeconds()).slice(-2);
+
+      let formattedDate = ntstgl.split("-").reverse().join("-"); // Convert to "YYYY-MM-DD"
+
+        db.transaction(function(tx) {
+          // Clear sjstat
+          tx.executeSql("DELETE FROM sjstat", [], function() {
+            console.log("CLEAR sjstat");
+                tx.executeSql(
+                  "INSERT INTO sjdaft (dfksupp, dfnsupp, dfkode, dfstatus, dftanggal, dftglnota, dfnota) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                  [ntsup, ntnma, gennota, jinput, nttgl, formattedDate, 0],
+                  function() {
+                    console.log("Sukses SIMPAN SEM: " + ntsup + ", " + ntnma + ", " + gennota + ", " + nttgl + ", " + formattedDate + ", dan " + jinput);
+
+                    // Insert data into sjstat
+                    tx.executeSql("INSERT INTO sjstat (stdaft) VALUES (?)", [jinput], function() {
+                      console.log("Sukses Isi sjstat");
+                      window.location.assign('rmrc.html'); // Redirect after success
+                    }, function(tx, error) {
+                      console.log("Error Isi sjstat: " + error.message);
+                    });
+                  }, function(tx, error) {
+                    console.log("Error SIMPAN SEM: " + error.message);
+                  }
+                );
+          }, function(tx, error) {
+            console.log("Error CLEAR sjstat: " + error.message);
+          });
+        }, onSQLError);
+    }
+
+    function balikmaning() {
+      animateCSS('body', 'fadeOut', function() {
+        window.location.href = "index.html";
+      })
+    }
+
+    function getFileContentAsBase64(path, callback) {
+      window.resolveLocalFileSystemURL(path, gotFile, fail);
+
+      function fail(e) {
+        alert('Cannot found requested file');
+      }
+
+      function gotFile(fileEntry) {
+        fileEntry.file(function(file) {
+          var reader = new FileReader();
+          reader.onloadend = function(e) {
+            var content = this.result;
+            callback(content);
+          };
+          // The most important point, use the readAsDatURL Method from the file plugin
+          reader.readAsDataURL(file);
+        });
+      }
+    }
+  </script>
+</body>
+
+</html>

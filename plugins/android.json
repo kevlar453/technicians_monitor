@@ -1,0 +1,113 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {}
+  },
+  "installed_plugins": {
+    "com.cordova.plugins.cookiemaster": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-add-swift-support": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-advanced-http": {
+      "ANDROIDBLACKLISTSECURESOCKETPROTOCOLS": "SSLv3,TLSv1",
+      "ANDROIDX_WEBKIT_VERSION": "1.4.0",
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-app-version": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-console": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-device": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-dialogs": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-file-opener2": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-filepath": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-network-information": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-splashscreen": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-file": {
+      "ANDROIDX_WEBKIT_VERSION": "1.4.0",
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-websql": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-sntp": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-pdf-generator": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-x-toast": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "br.com.msfilho.spinnerdialog": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-sqlite-storage": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-camera": {
+      "ANDROIDX_CORE_VERSION": "1.6.+",
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-geolocation": {
+      "GPS_REQUIRED": "true",
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-nativegeocoder": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-background-geolocation-plugin": {
+      "GOOGLE_PLAY_SERVICES_VERSION": "17+",
+      "ICON": "@mipmap/ic_launcher",
+      "SMALL_ICON": "@mipmap/ic_launcher",
+      "ACCOUNT_NAME": "@string/app_name",
+      "ACCOUNT_LABEL": "@string/app_name",
+      "ACCOUNT_TYPE": "$PACKAGE_NAME.account",
+      "CONTENT_AUTHORITY": "$PACKAGE_NAME",
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-android-permissions": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-local-notification": {
+      "ANDROID_SUPPORT_V4_VERSION": "26.+",
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-background-mode": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "WebViewer": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-clear-data": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    },
+    "cordova-plugin-cache-clear": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    }
+  },
+  "dependent_plugins": {
+    "cordova-plugin-badge": {
+      "PACKAGE_NAME": "top.arsetontong.acguy"
+    }
+  }
+}
